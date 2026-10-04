@@ -58,6 +58,14 @@ struct ContentView: View {
         .onChange(of: store.lastImportedID) { _, id in
             if let id { path = [id] }
         }
+        .task {
+            guard let scene = ScreenshotScene.current else { return }
+            if scene == .library {
+                await ScreenshotScene.markReady()
+            } else if let first = store.summaries.first {
+                path = [first.id]
+            }
+        }
     }
 
     private var reportList: some View {

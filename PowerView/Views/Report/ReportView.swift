@@ -15,6 +15,13 @@ struct ReportView: View {
     private var whPerPercent: Double { report.meta.whPerPercent }
 
     var body: some View {
+        ScrollViewReader { proxy in
+            list
+                .screenshotScene(report: report, day: selectedIndex, proxy: proxy)
+        }
+    }
+
+    private var list: some View {
         List {
             SummarySection(day: day, whPerPercent: whPerPercent)
             HighlightsSection(day: day, report: report, stabilityEvents: dayStabilityEvents)
@@ -29,6 +36,7 @@ struct ReportView: View {
             } footer: {
                 Text(batteryFooter)
             }
+            .id(ScreenshotScene.battery.rawValue)
 
             if let drain = day.drain {
                 DrainSection(drain: drain)
@@ -42,11 +50,14 @@ struct ReportView: View {
                 } footer: {
                     Text("Touch and hold a lane, then drag to inspect an hour. Shaded hours were mostly plugged in.")
                 }
+                .id(ScreenshotScene.hourly.rawValue)
             }
 
             ScreenSection(day: day)
+                .id(ScreenshotScene.screen.rawValue)
 
             NotificationsSection(day: day)
+                .id(ScreenshotScene.notifications.rawValue)
 
             if let apps = day.apps {
                 Section {
@@ -59,6 +70,7 @@ struct ReportView: View {
                 } footer: {
                     Text(day.tier == .daily ? "Covers 08:00 to 08:00 the next day." : "“On screen” is energy the system tags as display-on, which includes the Always-On Display.")
                 }
+                .id(ScreenshotScene.apps.rawValue)
             }
 
             if let components = day.components {
@@ -69,6 +81,7 @@ struct ReportView: View {
 
             if let detail = day.detail {
                 NetworkSection(day: day, detail: detail)
+                    .id(ScreenshotScene.network.rawValue)
             }
 
             DayStabilitySection(report: report, day: day)
