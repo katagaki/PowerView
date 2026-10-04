@@ -1,0 +1,9 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Battery level area">
+  <defs>
+    <linearGradient id="area" x1="0" y1="420" x2="0" y2="688" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#30d158" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#30d158" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#area)" d="M164 440 C229 430 273 453 328 461 C388 471 415 493 469 501 C524 510 551 531 611 540 C666 548 699 568 788 575 L788 584 A104 104 0 0 1 684 688 L268 688 A104 104 0 0 1 164 584 Z"/>
+</svg>

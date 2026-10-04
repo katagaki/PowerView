@@ -1,0 +1,155 @@
+{
+  "fill" : {
+    "linear-gradient" : [
+      "display-p3:0.29000,0.56000,1.00000,1.00000",
+      "display-p3:0.17000,0.20000,0.74000,1.00000"
+    ],
+    "orientation" : {
+      "start" : {
+        "x" : 0.5,
+        "y" : 0
+      },
+      "stop" : {
+        "x" : 0.5,
+        "y" : 1
+      }
+    }
+  },
+  "groups" : [
+    {
+      "blur-material" : 0,
+      "layers" : [
+        {
+          "image-name" : "lens-ring.svg",
+          "name" : "Rim and handle",
+          "fill-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "srgb:0.90000,0.92000,0.98000,1.00000"
+              }
+            }
+          ]
+        },
+        {
+          "image-name" : "lens-glass.svg",
+          "name" : "Glass",
+          "opacity" : 0.08
+        }
+      ],
+      "lighting" : "combined",
+      "name" : "Magnifier",
+      "refractivity" : {
+        "depth" : 0.35,
+        "enabled" : true,
+        "strength" : 0.45
+      },
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.6
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.2
+      },
+      "position" : {
+        "scale" : 1.18,
+        "translation-in-points" : [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "blur-material" : 0.3,
+      "layers" : [
+        {
+          "image-name" : "battery-cap.svg",
+          "name" : "Terminal"
+        },
+        {
+          "image-name" : "battery-frame.svg",
+          "name" : "Outline"
+        }
+      ],
+      "lighting" : "combined",
+      "name" : "Battery outline",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.45
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.15
+      },
+      "position" : {
+        "scale" : 1.18,
+        "translation-in-points" : [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "layers" : [
+        {
+          "glass" : false,
+          "image-name" : "chart-line.svg",
+          "name" : "Level line"
+        },
+        {
+          "glass" : false,
+          "image-name" : "chart-area.svg",
+          "name" : "Level area"
+        }
+      ],
+      "name" : "Battery level",
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 0.35
+      },
+      "specular" : false,
+      "position" : {
+        "scale" : 1.18,
+        "translation-in-points" : [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "blur-material" : 0.6,
+      "layers" : [
+        {
+          "image-name" : "battery-body.svg",
+          "name" : "Body"
+        }
+      ],
+      "lighting" : "combined",
+      "name" : "Battery",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.45
+      },
+      "position" : {
+        "scale" : 1.18,
+        "translation-in-points" : [
+          0,
+          0
+        ]
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "squares" : [
+      "iOS"
+    ]
+  }
+}
