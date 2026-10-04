@@ -24,7 +24,11 @@ nonisolated enum Format {
     }
 
     static func shortDate(_ day: DayReport) -> String {
-        day.dateValue?.formatted(utcStyle(month: .abbreviated, day: .defaultDigits, weekday: .abbreviated)) ?? day.date
+        shortDate(dayKey: day.date)
+    }
+
+    static func shortDate(dayKey: String) -> String {
+        DayReport.date(fromKey: dayKey)?.formatted(utcStyle(month: .abbreviated, day: .defaultDigits, weekday: .abbreviated)) ?? dayKey
     }
 
     static func longDate(_ day: DayReport) -> String {
@@ -63,9 +67,9 @@ nonisolated enum Format {
         return minutes >= 60 ? "\(minutes / 60) h \(minutes % 60) min" : "\(minutes) min"
     }
 
-    static func range(of report: PowerReport) -> String {
-        guard let first = report.days.first, let last = report.days.last else { return "" }
-        return "\(shortDate(first)) – \(shortDate(last))"
+    static func range(of summary: ReportSummary) -> String {
+        guard let first = summary.firstDay, let last = summary.lastDay else { return "" }
+        return "\(shortDate(dayKey: first)) – \(shortDate(dayKey: last))"
     }
 
     /// Day strings are calendar dates, so they're parsed and displayed in UTC to avoid shifting.

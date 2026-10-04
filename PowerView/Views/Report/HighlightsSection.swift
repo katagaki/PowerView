@@ -2,56 +2,52 @@ import SwiftUI
 
 struct HighlightsSection: View {
     let day: DayReport
-    let whPerPercent: Double
+    let report: PowerReport
     let stabilityEvents: [StabilityEvent]
 
     var body: some View {
-        let items = highlights
+        let items = HighlightRanker.highlights(for: day, in: report.days, stability: stabilityEvents,
+                                               whPerPercent: report.meta.whPerPercent)
         if !items.isEmpty {
-            Section("Highlights") {
-                ForEach(items, id: \.text) { item in
+            Section {
+                ForEach(items) { item in
                     Label {
                         Text((try? AttributedString(markdown: item.text)) ?? AttributedString(item.text))
                     } icon: {
-                        Image(systemName: item.icon)
-                            .foregroundStyle(item.tint)
+                        Image(systemName: Self.icon(for: item.kind))
+                            .foregroundStyle(Self.tint(for: item.kind))
                     }
                 }
+            } header: {
+                Text("Highlights")
+            } footer: {
+                Text("Ranked by how much battery each cost. Lines that are typical for your other days are left out unless they cost a lot.")
             }
         }
     }
 
-    /// At most five, in order of how much they explain the day's battery use.
-    private var highlights: [(icon: String, tint: Color, text: String)] {
-        var out: [(String, Color, String)] = []
-        if let aod = day.aodEnergyWh, aod > 0.05 {
-            out.append(("clock.badge", .purple, "Always-On Display used **≈\(Int((aod / whPerPercent).rounded()))%** of the battery"))
+    private static func icon(for kind: Highlight.Kind) -> String {
+        switch kind {
+        case .alwaysOn: "clock.badge"
+        case .onScreenApp: "hand.tap.fill"
+        case .backgroundApp: "gearshape.2.fill"
+        case .standbyDrain: "moon.zzz.fill"
+        case .heavyBackground: "cpu"
+        case .notifications: "bell.badge.fill"
+        case .wakes: "alarm.fill"
+        case .temperature: "thermometer.high"
+        case .cellularSwitching: "antenna.radiowaves.left.and.right"
         }
-        if let app = day.topOnScreenApp, app.screen > 0 {
-            let minutes = app.foregroundMinutes > 0 ? " in \(app.foregroundMinutes) min" : ""
-            out.append(("hand.tap.fill", .blue, "**\(app.name)** used the most on screen: \(Format.wh(Double(app.screen) / 1000))\(minutes)"))
+    }
+
+    private static func tint(for kind: Highlight.Kind) -> Color {
+        switch kind {
+        case .alwaysOn: .purple
+        case .onScreenApp: .blue
+        case .backgroundApp, .heavyBackground, .temperature: .orange
+        case .standbyDrain, .wakes: .indigo
+        case .notifications: .red
+        case .cellularSwitching: .green
         }
-        if let app = day.topBackgroundApp, app.background > 0 {
-            out.append(("gearshape.2.fill", .orange, "**\(app.name)** used the most in the background: \(Format.wh(Double(app.background) / 1000))"))
-        }
-        let battery = stabilityEvents.filter(\.kind.affectsBattery)
-        if !battery.isEmpty {
-            let names = Set(battery.map(\.process)).sorted().prefix(2).joined(separator: " and ")
-            out.append(("cpu", .orange, "**\(names)** used heavy background CPU or disk"))
-        }
-        if let top = day.notifications?.first, top.count >= 20 {
-            let woke = top.wokePhone > 0 ? " and woke the phone \(top.wokePhone) times" : ""
-            out.append(("bell.badge.fill", .red, "**\(top.name)** sent \(top.count) notifications\(woke)"))
-        }
-        if let wakes = day.wakes, let reason = wakes.reasons.first {
-            out.append(("alarm.fill", .indigo, "Woke from sleep **\(wakes.total) times**, mostly for \(reason.name.lowercased().replacing("wi-fi", with: "Wi-Fi"))"))
-        }
-        if let peak = day.temperature?.bins.max(by: { $0.maximum < $1.maximum }), peak.maximum >= TemperatureChartView.warmThreshold + 3 {
-            out.append(("thermometer.high", .orange, "Battery peaked at **\(String(format: "%.1f", peak.maximum)) °C** around \(Format.clock(Double(peak.bin) / 4))"))
-        }
-        if let detail = day.detail, detail.radio.count > 2 {
-            out.append(("antenna.radiowaves.left.and.right", .green, "Switched between 5G and 4G **\(detail.radio.count - 1) times**"))
-        }
-        return Array(out.prefix(5))
     }
 }

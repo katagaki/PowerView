@@ -11,7 +11,7 @@ struct ContentView: View {
         @Bindable var store = store
         NavigationStack(path: $path) {
             Group {
-                if store.reports.isEmpty && !store.isImporting {
+                if store.summaries.isEmpty && !store.isImporting {
                     ContentUnavailableView {
                         Label("No Reports", systemImage: "battery.100percent.bolt")
                     } description: {
@@ -27,11 +27,7 @@ struct ContentView: View {
             }
             .navigationTitle("PowerView")
             .navigationDestination(for: UUID.self) { id in
-                if let report = store.report(id: id) {
-                    ReportView(report: report)
-                } else {
-                    ContentUnavailableView("Report Not Found", systemImage: "questionmark.folder")
-                }
+                ReportLoaderView(id: id)
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -67,13 +63,13 @@ struct ContentView: View {
     private var reportList: some View {
         List {
             Section {
-                ForEach(store.reports) { report in
-                    NavigationLink(value: report.id) {
-                        ReportRow(report: report)
+                ForEach(store.summaries) { summary in
+                    NavigationLink(value: summary.id) {
+                        ReportRow(summary: summary)
                     }
                 }
                 .onDelete { offsets in
-                    offsets.map { store.reports[$0] }.forEach(store.delete)
+                    offsets.map { store.summaries[$0] }.forEach(store.delete)
                 }
             } footer: {
                 Text("Reports are created on this device and never leave it.")

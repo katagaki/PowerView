@@ -1,22 +1,22 @@
 import SwiftUI
 
 struct ReportRow: View {
-    let report: PowerReport
+    let summary: ReportSummary
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(report.meta.deviceName)
+                Text(summary.deviceName)
                     .font(.headline)
-                if let build = report.meta.build {
+                if let build = summary.build {
                     Text(build)
                         .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
                 }
             }
-            Text("Captured \(report.meta.captured.formatted(date: .abbreviated, time: .shortened))")
+            Text("Captured \(summary.captured.formatted(date: .abbreviated, time: .shortened))")
                 .font(.subheadline)
-            Text("\(report.days.count) days · \(Format.range(of: report))")
+            Text("\(summary.dayCount) days · \(Format.range(of: summary))")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

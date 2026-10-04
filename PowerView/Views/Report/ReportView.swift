@@ -17,7 +17,7 @@ struct ReportView: View {
     var body: some View {
         List {
             SummarySection(day: day, whPerPercent: whPerPercent)
-            HighlightsSection(day: day, whPerPercent: whPerPercent, stabilityEvents: dayStabilityEvents)
+            HighlightsSection(day: day, report: report, stabilityEvents: dayStabilityEvents)
 
             Section {
                 BatteryChartView(day: day)

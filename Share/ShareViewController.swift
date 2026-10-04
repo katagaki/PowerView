@@ -110,7 +110,7 @@ struct ShareStatusView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                Button("Done", action: dismiss)
+                Button(role: .confirm, action: dismiss)
                     .buttonStyle(.borderedProminent)
             case .failed(let message):
                 Image(systemName: "exclamationmark.triangle.fill")
@@ -122,7 +122,7 @@ struct ShareStatusView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                Button("Close", action: dismiss)
+                Button(role: .close, action: dismiss)
                     .buttonStyle(.bordered)
             }
         }

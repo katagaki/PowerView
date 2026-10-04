@@ -20,7 +20,10 @@ nonisolated extension DayReport {
         return BatteryStats(used: used, hoursOnBattery: onBattery, charged: charged, lowest: battery.map(\.level).min())
     }
 
-    var dateValue: Date? { DayReport.parser.date(from: date) }
+    var dateValue: Date? { DayReport.date(fromKey: date) }
+
+    /// Parses a `yyyy-MM-dd` day key as midnight UTC, so it formats back to the same calendar date.
+    static func date(fromKey key: String) -> Date? { parser.date(from: key) }
 
     /// Screen-on time in seconds: exact from backlight events where kept, otherwise from hourly usage.
     var screenOnSeconds: Double? {
