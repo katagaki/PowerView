@@ -39,6 +39,7 @@ struct AppsChartView: View {
                     AxisValueLabel(horizontalSpacing: 8)
                 }
             }
+            .chartXScale(range: .plotDimension(endPadding: 32))
             .chartYSelection(value: $selectedName)
             .frame(height: CGFloat(top.count) * 30 + 50)
 
