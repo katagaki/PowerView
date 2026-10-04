@@ -12,6 +12,7 @@ struct ImportProgressView: View {
                         .font(.headline)
                 } currentValueLabel: {
                     Text(progress.fraction, format: .percent.precision(.fractionLength(0)))
+                        .contentTransition(.identity)
                 }
                 Text("Large sysdiagnoses can take a minute. Keep PowerView open.")
                     .font(.footnote)
@@ -19,7 +20,7 @@ struct ImportProgressView: View {
             }
             .padding(24)
             .frame(maxWidth: 340)
-            .background(.regularMaterial, in: .rect(cornerRadius: 24))
+            .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 32, style: .continuous))
             .padding()
         }
         .animation(.default, value: progress)
