@@ -26,6 +26,7 @@ struct TemperatureChartView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline) {
                 Label("Battery Temperature", systemImage: "thermometer.medium")
+                    .labelStyle(.compact)
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.orange)
                 Spacer()

@@ -11,6 +11,7 @@ struct MetricTile: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Label(title, systemImage: systemImage)
+                .labelStyle(.compact)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(tint)
             HStack(alignment: .firstTextBaseline, spacing: 2) {

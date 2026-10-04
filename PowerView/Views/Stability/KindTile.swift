@@ -6,14 +6,14 @@ struct KindTile: View {
     let isSelected: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
                 Image(systemName: kind.systemImage)
                 Spacer()
                 Text("\(count)")
-                    .font(.title2.weight(.semibold))
                     .monospacedDigit()
             }
+            .font(.title2.weight(.semibold))
             .foregroundStyle(isSelected ? .white : kind.tint)
             Text(kind.pluralTitle)
                 .font(.footnote.weight(.semibold))

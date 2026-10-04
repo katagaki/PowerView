@@ -109,6 +109,7 @@ struct ChargingView: View {
     private func tile(_ title: String, _ image: String, _ tint: Color, _ value: String, _ unit: String, _ detail: String?) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Label(title, systemImage: image)
+                .labelStyle(.compact)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(tint)
             HStack(alignment: .firstTextBaseline, spacing: 2) {
