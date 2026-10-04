@@ -243,20 +243,30 @@ func compose(_ shot: Screenshot, language: String, device: Device) -> Bool {
     var headerTop = canvasSize.height - 96 * s
     let textBottom = headerTop - header.size.height - captionGap - caption.size.height
 
-    // The device fills what is left below the text.
+    // The iPhone fills what is left below the text. The iPad is as wide as the margins allow
+    // and runs off the bottom of the canvas.
     let deviceTopMargin = 64 * s
     let deviceBottomMargin = 88 * s
-    let availableHeight = textBottom - deviceTopMargin - deviceBottomMargin
+    let maxDeviceWidth = canvasSize.width - 120 * s
     let aspect = deviceAspect(device)
-    var deviceSize = NSSize(width: availableHeight * aspect, height: availableHeight)
-    if deviceSize.width > canvasSize.width - 120 * s {
-        deviceSize.width = canvasSize.width - 120 * s
-        deviceSize.height = deviceSize.width / aspect
+    var deviceSize: NSSize
+    var deviceTop: CGFloat
+    switch device {
+    case .iPhone:
+        let availableHeight = textBottom - deviceTopMargin - deviceBottomMargin
+        deviceSize = NSSize(width: availableHeight * aspect, height: availableHeight)
+        if deviceSize.width > maxDeviceWidth {
+            deviceSize.width = maxDeviceWidth
+            deviceSize.height = deviceSize.width / aspect
+        }
+        deviceTop = deviceBottomMargin + deviceSize.height
+    case .iPad:
+        deviceSize = NSSize(width: maxDeviceWidth, height: maxDeviceWidth / aspect)
+        deviceTop = textBottom - deviceTopMargin
     }
 
     // The text is centered, by the header's cap height and the caption's baseline,
     // between the top of the canvas and the top of the device.
-    let deviceTop = deviceBottomMargin + deviceSize.height
     let capInset = header.font.ascender - header.font.capHeight
     let visualHeight = header.size.height + captionGap + caption.font.ascender - capInset
     let visualTop = (canvasSize.height + deviceTop) / 2 + visualHeight / 2
@@ -266,7 +276,7 @@ func compose(_ shot: Screenshot, language: String, device: Device) -> Bool {
 
     let deviceRect = NSRect(
         x: ((canvasSize.width - deviceSize.width) / 2).rounded(),
-        y: deviceBottomMargin,
+        y: deviceTop - deviceSize.height,
         width: deviceSize.width,
         height: deviceSize.height
     )
