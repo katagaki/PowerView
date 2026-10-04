@@ -2,6 +2,7 @@
 
 ## Commits
 
+- All changes must be committed. Do not leave changes uncommitted in the working tree.
 - Commit after every major change.
 - Commit messages must be a single line only (no body, no trailers).
 
