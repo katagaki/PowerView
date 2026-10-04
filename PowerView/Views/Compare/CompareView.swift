@@ -288,7 +288,7 @@ struct CompareView: View {
         .chartForegroundStyleScale([labelA: Self.firstColor, labelB: Self.secondColor])
         .chartLegend(position: .top, alignment: .leading)
         .chartYScale(domain: categories)
-        .chartYAxis { AxisMarks { _ in AxisValueLabel(horizontalSpacing: 8) } }
+        .chartYAxis { AxisMarks(preset: .extended, position: .leading) { _ in AxisValueLabel(horizontalSpacing: 8) } }
         .chartXAxis {
             AxisMarks { value in
                 AxisGridLine()
