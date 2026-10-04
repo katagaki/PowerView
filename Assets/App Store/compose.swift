@@ -254,15 +254,13 @@ func compose(_ shot: Screenshot, language: String, device: Device) -> Bool {
         deviceSize.height = deviceSize.width / aspect
     }
 
-    // The iPad leaves more room above it, so its text is centered, by the header's cap height
-    // and the caption's baseline, between the top of the canvas and the top of the device.
-    if device == .iPad {
-        let deviceTop = deviceBottomMargin + deviceSize.height
-        let capInset = header.font.ascender - header.font.capHeight
-        let visualHeight = header.size.height + captionGap + caption.font.ascender - capInset
-        let visualTop = (canvasSize.height + deviceTop) / 2 + visualHeight / 2
-        headerTop = (visualTop + capInset).rounded()
-    }
+    // The text is centered, by the header's cap height and the caption's baseline,
+    // between the top of the canvas and the top of the device.
+    let deviceTop = deviceBottomMargin + deviceSize.height
+    let capInset = header.font.ascender - header.font.capHeight
+    let visualHeight = header.size.height + captionGap + caption.font.ascender - capInset
+    let visualTop = (canvasSize.height + deviceTop) / 2 + visualHeight / 2
+    headerTop = (visualTop + capInset).rounded()
     header.draw(top: headerTop, canvasWidth: canvasSize.width)
     caption.draw(top: headerTop - header.size.height - captionGap, canvasWidth: canvasSize.width)
 
