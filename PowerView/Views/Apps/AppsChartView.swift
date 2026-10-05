@@ -36,7 +36,7 @@ struct AppsChartView: View {
             }
             .chartYAxis {
                 AxisMarks(preset: .extended, position: .leading) { _ in
-                    AxisValueLabel(anchor: .leading, horizontalSpacing: 8)
+                    AxisValueLabel(centered: true, horizontalSpacing: 8)
                 }
             }
             .chartXScale(range: .plotDimension(endPadding: 32))
