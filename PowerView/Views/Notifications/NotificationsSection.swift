@@ -32,7 +32,7 @@ struct NotificationsSection: View {
                     }
                     .chartForegroundStyleScale([wokeLabel: Color.red, quietLabel: Color.gray.opacity(0.5)])
                     .chartLegend(position: .top, alignment: .leading)
-                    .chartYAxis { AxisMarks(preset: .extended, position: .leading) { _ in AxisValueLabel(horizontalSpacing: 8) } }
+                    .chartYAxis { AxisMarks(preset: .extended, position: .leading) { _ in AxisValueLabel(anchor: .leading, horizontalSpacing: 8) } }
                     .chartXScale(range: .plotDimension(endPadding: 32))
                     .frame(height: CGFloat(top.count) * 30 + 50)
                     .padding(.bottom, 8)

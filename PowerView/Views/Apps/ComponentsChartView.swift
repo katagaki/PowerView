@@ -24,7 +24,7 @@ struct ComponentsChartView: View {
             }
         }
         .chartYAxis {
-            AxisMarks(preset: .extended, position: .leading) { _ in AxisValueLabel(horizontalSpacing: 8) }
+            AxisMarks(preset: .extended, position: .leading) { _ in AxisValueLabel(anchor: .leading, horizontalSpacing: 8) }
         }
         .chartXScale(range: .plotDimension(endPadding: 56))
         .frame(height: CGFloat(components.count) * 34 + 24)
