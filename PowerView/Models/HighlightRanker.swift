@@ -47,7 +47,7 @@ nonisolated enum HighlightRanker {
 
     static func highlights(for day: DayReport, in days: [DayReport], stability: [StabilityEvent],
                            whPerPercent: Double, limit: Int = 5) -> [Highlight] {
-        let others = days.filter { $0.date != day.date && !$0.partial }
+        let others = days.filter { $0.id != day.id && !$0.partial }
         var candidates: [Highlight] = []
 
         func percent(_ wh: Double) -> Double { wh / whPerPercent }
@@ -124,7 +124,7 @@ nonisolated enum HighlightRanker {
         if let peak = day.temperature?.bins.max(by: { $0.maximum < $1.maximum }), peak.maximum >= 35 {
             let comparison = compare(peak.maximum, to: others.compactMap { $0.temperature?.bins.map(\.maximum).max() })
             addContext(.temperature, comparison,
-                       "Battery peaked at **\(String(format: "%.1f", peak.maximum)) °C** around \(Format.clock(Double(peak.bin) / 4))")
+                       "Battery peaked at **\(String(format: "%.1f", peak.maximum)) °C** around \(day.axis.clock(Double(peak.bin) / 4))")
         }
         if let detail = day.detail, detail.radio.count - 1 >= minimumRadioSwitches {
             let switches = Double(detail.radio.count - 1)

@@ -7,7 +7,7 @@ struct DayStabilitySection: View {
 
     var body: some View {
         let events = (report.stability ?? [])
-            .filter { Format.dayKey($0.date, in: report.meta.timeZone) == day.date }
+            .filter { day.contains($0.date, timeZone: report.meta.timeZone) }
             .sorted { ($0.kind.severity, $1.date) < ($1.kind.severity, $0.date) }
         if !events.isEmpty {
             Section {

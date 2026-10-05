@@ -7,7 +7,7 @@ struct NetworkSection: View {
     let detail: EventDetail
     @State private var selection: Double?
 
-    private var bin: Int? { selection.map { min(95, max(0, Int($0 * 4))) } }
+    private var bin: Int? { selection.map { min(day.axis.hours * 4 - 1, max(0, Int($0 * 4))) } }
     private var highlight: ClosedRange<Double>? { bin.map { Double($0) / 4...Double($0 + 1) / 4 } }
 
     private var wifiTotal: Double { detail.data.reduce(0) { $0 + $1.wifiMB } }
@@ -17,25 +17,25 @@ struct NetworkSection: View {
         return peak > 800 ? 800 : max(50, (peak / 50).rounded(.up) * 50)
     }
     private var cellularCap: Double { max(0.5, detail.data.map(\.cellularMB).max() ?? 1) }
-    private var lastHour: Double { min(24, day.battery.last?.hour ?? 24) }
+    private var lastHour: Double { min(Double(day.axis.hours), day.battery.last?.hour ?? Double(day.axis.hours)) }
 
     var body: some View {
         Section {
             VStack(alignment: .leading, spacing: 14) {
                 LaneChart(title: "Wi-Fi Data", total: Format.megabytes(wifiTotal), height: 44, domainMax: wifiCap,
-                          highlight: highlight, selection: $selection) {
+                          axis: day.axis, highlight: highlight, selection: $selection) {
                     ForEach(detail.data, id: \.bin) { bin in
                         LaneBar(start: Double(bin.bin) / 4, end: Double(bin.bin + 1) / 4 - 0.02, value: min(bin.wifiMB, wifiCap), style: Color.blue.gradient)
                     }
                 }
                 LaneChart(title: "Cellular Data", total: String(format: "%.1f MB", cellularTotal), height: 28, domainMax: cellularCap,
-                          highlight: highlight, selection: $selection) {
+                          axis: day.axis, highlight: highlight, selection: $selection) {
                     ForEach(detail.data, id: \.bin) { bin in
                         LaneBar(start: Double(bin.bin) / 4, end: Double(bin.bin + 1) / 4 - 0.02, value: bin.cellularMB, style: Color.green.gradient)
                     }
                 }
                 LaneChart(title: "Cellular Technology", total: detail.radio.count > 1 ? "\(detail.radio.count - 1) changes" : nil, height: 14,
-                          highlight: highlight, selection: $selection) {
+                          axis: day.axis, highlight: highlight, selection: $selection) {
                     ForEach(detail.radio.indices, id: \.self) { index in
                         let change = detail.radio[index]
                         let end = index + 1 < detail.radio.count ? detail.radio[index + 1].hour : lastHour
@@ -43,7 +43,7 @@ struct NetworkSection: View {
                     }
                 }
                 LaneChart(title: "Signal Bars", total: nil, height: 28, domainMax: 5, showsAxis: true,
-                          highlight: highlight, selection: $selection) {
+                          axis: day.axis, highlight: highlight, selection: $selection) {
                     ForEach(detail.bars, id: \.bin) { bin in
                         LaneBar(start: Double(bin.bin) / 4, end: Double(bin.bin + 1) / 4 - 0.02, value: bin.bars, style: Color.gray.gradient)
                     }
@@ -101,7 +101,7 @@ struct NetworkSection: View {
                 let bars = detail.bars.first { $0.bin == bin }
                 let screenMinutes = detail.screen.reduce(0) { $0 + max(0, min($1.end, end) - max($1.start, start)) } * 60
                 let changes = detail.radio.filter { $0.hour >= start && $0.hour < end }.count
-                Text("\(Format.clock(start))–\(Format.clock(end))")
+                Text("\(day.axis.clock(start))–\(day.axis.clock(end))")
                     .font(.headline)
                 Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 3) {
                     row("Screen On", "\(Int(screenMinutes.rounded())) min")

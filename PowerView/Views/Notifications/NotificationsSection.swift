@@ -53,7 +53,7 @@ struct NotificationsSection: View {
                         }
                     } label: {
                         LabeledContent("Wakes from Sleep") {
-                            Text("\(wakes.total) · \(wakes.total / 24) per hour")
+                            Text("\(wakes.total) · \(wakes.total / day.axis.hours) per hour")
                                 .monospacedDigit()
                         }
                     }

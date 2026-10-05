@@ -2,16 +2,29 @@ import SwiftUI
 
 struct ReportView: View {
     let report: PowerReport
+    @State private var period = ReportPeriod.days
     @State private var selectedIndex: Int
+    @State private var selectedStretch: Int
 
     init(report: PowerReport) {
         self.report = report
         // Open on the last full day; the capture day is usually partial.
         let lastFull = report.days.count - ((report.days.last?.partial ?? false) && report.days.count > 1 ? 2 : 1)
         _selectedIndex = State(initialValue: max(0, lastFull))
+        // Stretches open on the one since it was last unplugged.
+        _selectedStretch = State(initialValue: max(0, (report.unplugged?.count ?? 0) - 1))
     }
 
-    private var day: DayReport { report.days[selectedIndex] }
+    private var reports: [DayReport] {
+        let reports = period.reports(in: report)
+        return reports.isEmpty ? report.days : reports
+    }
+
+    private var selection: Binding<Int> {
+        period == .unplugged && report.unplugged?.isEmpty == false ? $selectedStretch : $selectedIndex
+    }
+
+    private var day: DayReport { reports[min(selection.wrappedValue, reports.count - 1)] }
     private var whPerPercent: Double { report.meta.whPerPercent }
 
     var body: some View {
@@ -24,12 +37,12 @@ struct ReportView: View {
     private var list: some View {
         List {
             SummarySection(day: day, whPerPercent: whPerPercent)
-            HighlightsSection(day: day, report: report, stabilityEvents: dayStabilityEvents)
+            HighlightsSection(day: day, report: report, others: comparableReports, stabilityEvents: dayStabilityEvents)
 
             Section {
                 BatteryChartView(day: day)
                 if let temperature = day.temperature {
-                    TemperatureChartView(series: temperature)
+                    TemperatureChartView(series: temperature, axis: day.axis)
                 }
             } header: {
                 Text("Battery Level")
@@ -48,7 +61,7 @@ struct ReportView: View {
                 } header: {
                     Text("Hour by Hour")
                 } footer: {
-                    Text("Touch and hold a lane, then drag to inspect an hour. Shaded hours were mostly plugged in.")
+                    Text(hourlyFooter)
                 }
                 .id(ScreenshotScene.hourly.rawValue)
             }
@@ -89,7 +102,7 @@ struct ReportView: View {
             if let events = day.events {
                 Section("Setting Changes") {
                     ForEach(events) { event in
-                        LabeledContent(event.text, value: Format.clock(event.hour))
+                        LabeledContent(event.text, value: day.axis.clock(event.hour))
                             .monospacedDigit()
                     }
                 }
@@ -98,11 +111,11 @@ struct ReportView: View {
             Section {
                 if report.days.count > 1 {
                     NavigationLink {
-                        CompareView(report: report, initialDay: selectedIndex)
+                        CompareView(report: report, initialDay: selection.wrappedValue, period: period)
                     } label: {
                         Label {
                             Text("Compare Days")
-                            Text("Two days side by side")
+                            Text(period == .unplugged ? "Two stretches on battery side by side" : "Two days side by side")
                         } icon: {
                             Image(systemName: "square.split.2x1.fill").foregroundStyle(.blue)
                         }
@@ -169,16 +182,52 @@ struct ReportView: View {
         }
         .contentMargins(.top, 8, for: .scrollContent)
         .animation(.default, value: selectedIndex)
-        .navigationTitle(Format.shortDate(day))
+        .animation(.default, value: selectedStretch)
+        .animation(.default, value: period)
+        .navigationTitle(day.title)
         .navigationSubtitle(report.meta.deviceName)
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .top, spacing: 0) {
-            DayStrip(days: report.days, selection: $selectedIndex)
+            DayStrip(days: reports, selection: selection)
+                // A fresh strip per period, so it scrolls to that period's selection.
+                .id(period)
+        }
+        .toolbar {
+            if report.unplugged?.isEmpty == false {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Picker("Show", selection: $period) {
+                            ForEach(ReportPeriod.allCases) { period in
+                                Label(period.rawValue, systemImage: period.systemImage).tag(period)
+                            }
+                        }
+                    } label: {
+                        Label("Show", systemImage: period.systemImage)
+                    }
+                }
+            }
+        }
+    }
+
+    /// What the highlights call "usual". Stretches on battery vary in length, so only those
+    /// at least half as long and at most twice as long are compared.
+    private var comparableReports: [DayReport] {
+        guard let stretch = day.stretch else { return reports }
+        let length = stretch.end - stretch.start
+        return reports.filter { other in
+            guard let otherStretch = other.stretch else { return false }
+            return (length / 2...length * 2).contains(otherStretch.end - otherStretch.start)
         }
     }
 
     private var dayStabilityEvents: [StabilityEvent] {
-        (report.stability ?? []).filter { Format.dayKey($0.date, in: report.meta.timeZone) == day.date }
+        (report.stability ?? []).filter { day.contains($0.date, timeZone: report.meta.timeZone) }
+    }
+
+    private var hourlyFooter: String {
+        let footer = "Touch and hold a lane, then drag to inspect an hour. Shaded hours were mostly plugged in."
+        guard day.stretch != nil else { return footer }
+        return footer + " Hourly records cover whole hours, so the first and last hours can include time on the charger."
     }
 
     private func stabilitySummary(_ events: [StabilityEvent]) -> String {
@@ -188,7 +237,15 @@ struct ReportView: View {
     }
 
     private var batteryFooter: String {
-        var parts = ["Green: charging."]
+        var parts: [String] = []
+        if let stretch = day.stretch {
+            let length = String(format: "%.1f h", stretch.end - stretch.start)
+            parts.append(stretch.pluggedIn == nil
+                         ? "Unplugged at \(day.axis.clock(stretch.start)) and still on battery when captured, \(length) later."
+                         : "Unplugged at \(day.axis.clock(stretch.start)) until plugged in at \(day.axis.clock(stretch.end)), \(length) later.")
+        } else {
+            parts.append("Green: charging.")
+        }
         if day.detail != nil { parts.append("Purple bar: screen on.") }
         if day.events != nil { parts.append("Dashed lines: setting changes.") }
         return parts.joined(separator: " ")

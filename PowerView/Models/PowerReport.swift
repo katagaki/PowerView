@@ -11,6 +11,8 @@ nonisolated struct PowerReport: Codable, Identifiable, Hashable, Sendable {
     var charging: [ChargingSession]?
     /// Crashes, memory kills and other diagnostic reports in the archive.
     var stability: [StabilityEvent]?
+    /// Each stretch on battery, from being unplugged until next plugged in, oldest first.
+    var unplugged: [DayReport]?
 
     static func == (lhs: PowerReport, rhs: PowerReport) -> Bool { lhs.id == rhs.id }
     func hash(into hasher: inout Hasher) { hasher.combine(id) }
@@ -92,8 +94,25 @@ nonisolated struct DayReport: Codable, Identifiable, Sendable {
     /// Which app was on screen, only kept for the last couple of days.
     var screenApps: ScreenAppTimeline?
     var brightness: [BrightnessBin]?
+    /// Set when this covers a stretch on battery instead of a calendar day.
+    var stretch: BatteryStretch?
 
-    var id: String { date }
+    var id: String { stretch.map { "\(date)-\(Int($0.unplugged.timeIntervalSince1970))" } ?? date }
+}
+
+/// A stretch on battery, from being unplugged until next plugged in. Its hours count from
+/// the start of the hour it was unplugged in, rather than from midnight.
+nonisolated struct BatteryStretch: Codable, Sendable {
+    var unplugged: Date
+    /// Nil when it was still on battery when the sysdiagnose was taken.
+    var pluggedIn: Date?
+    /// Local hour of day that hour 0 falls on.
+    var startHour: Int
+    /// How many hours the hourly values cover.
+    var hours: Int
+    /// When it was unplugged and plugged in, in hours since hour 0.
+    var start: Double
+    var end: Double
 }
 
 /// `hour` is hours since local midnight.
@@ -122,7 +141,7 @@ nonisolated struct AppEnergy: Codable, Sendable, Identifiable {
     var id: String { bundleID }
 }
 
-/// 24 values per lane. Times are in seconds, energy in mWh, keep-alives are counts.
+/// One value per hour of the report (24 for a day). Times are in seconds, energy in mWh, keep-alives are counts.
 nonisolated struct HourlyLanes: Codable, Sendable {
     var screen: [Int]
     var plugged: [Int]

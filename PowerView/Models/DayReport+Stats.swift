@@ -45,9 +45,10 @@ nonisolated extension DayReport {
 
     /// Battery percentage lost in each hour.
     var hourlyDrain: [Double] {
-        var out = Array(repeating: 0.0, count: 24)
+        let hours = axis.hours
+        var out = Array(repeating: 0.0, count: hours)
         for (previous, sample) in zip(battery, battery.dropFirst()) where sample.level < previous.level {
-            out[min(23, max(0, Int(sample.hour)))] += Double(previous.level - sample.level)
+            out[min(hours - 1, max(0, Int(sample.hour)))] += Double(previous.level - sample.level)
         }
         return out
     }
@@ -130,7 +131,7 @@ nonisolated extension DayReport {
             }
         } else if let hourly, hasUsageTime {
             let drain = hourlyDrain
-            for hour in 0..<24 {
+            for hour in 0..<min(drain.count, hourly.plugged.count) {
                 let charging = battery.contains { Int($0.hour) == hour && $0.charging }
                 let samples = battery.filter { Int($0.hour) == hour }
                 guard hourly.plugged[hour] < 300, !charging, samples.count >= 6 else { continue }

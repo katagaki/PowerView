@@ -28,7 +28,7 @@ struct ScreenSection: View {
                 VStack(alignment: .leading, spacing: 14) {
                     if let timeline = day.screenApps {
                         LaneChart(title: "App on Screen", total: day.screenOnSeconds.map(Format.hours(fromSeconds:)), height: 22,
-                                  highlight: highlight, selection: $selection) {
+                                  axis: day.axis, highlight: highlight, selection: $selection) {
                             ForEach(timeline.segments.indices, id: \.self) { index in
                                 let segment = timeline.segments[index]
                                 LaneBar(start: segment.start, end: max(segment.end, segment.start + 0.02), value: 1,
@@ -39,7 +39,7 @@ struct ScreenSection: View {
                     if let bins = day.brightness {
                         let peak = max(100, bins.map(\.nits).max() ?? 100)
                         LaneChart(title: "Screen Brightness", total: "avg \(Int(averageNits(bins))) nits", height: 36, domainMax: peak,
-                                  highlight: highlight, selection: $selection) {
+                                  axis: day.axis, highlight: highlight, selection: $selection) {
                             ForEach(bins, id: \.bin) { bin in
                                 LaneBar(start: Double(bin.bin) / 4, end: Double(bin.bin + 1) / 4 - 0.02, value: bin.nits, style: Color.yellow.gradient)
                             }
@@ -48,7 +48,7 @@ struct ScreenSection: View {
                         if !luxBins.isEmpty {
                             let luxPeak = max(100, luxBins.compactMap(\.lux).max() ?? 100)
                             LaneChart(title: "Ambient Light", total: "peak \(Int(luxPeak)) lux", height: 28, domainMax: luxPeak, showsAxis: true,
-                                      highlight: highlight, selection: $selection) {
+                                      axis: day.axis, highlight: highlight, selection: $selection) {
                                 ForEach(luxBins, id: \.bin) { bin in
                                     LaneBar(start: Double(bin.bin) / 4, end: Double(bin.bin + 1) / 4 - 0.02, value: bin.lux ?? 0, style: Color.gray.gradient)
                                 }
@@ -103,10 +103,10 @@ struct ScreenSection: View {
     private var selectionCard: some View {
         VStack(alignment: .leading, spacing: 6) {
             if let selection {
-                let bin = min(95, max(0, Int(selection * 4)))
+                let bin = min(day.axis.hours * 4 - 1, max(0, Int(selection * 4)))
                 let brightness = day.brightness?.first { $0.bin == bin }
                 let app = day.screenApps?.segments.last { $0.start <= selection && $0.end >= selection }
-                Text(Format.clock(selection))
+                Text(day.axis.clock(selection))
                     .font(.headline)
                 Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 3) {
                     row("On Screen", app.map { ProcessNames.name(for: $0.appID) } ?? "Screen off")

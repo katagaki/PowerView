@@ -1,11 +1,14 @@
 import Charts
 import SwiftUI
 
-/// Two days side by side: battery curves on one chart, then the numbers, components and apps.
+/// Two days, or two stretches on battery, side by side: battery curves on one chart, then the numbers, components and apps.
 struct CompareView: View {
     let report: PowerReport
-    @State private var first: Int
-    @State private var second: Int
+    @State private var period: ReportPeriod
+    @State private var firstDay: Int
+    @State private var secondDay: Int
+    @State private var firstStretch: Int
+    @State private var secondStretch: Int
     @State private var alignment = Alignment.sinceUnplugged
 
     enum Alignment: String, CaseIterable, Identifiable {
@@ -17,26 +20,54 @@ struct CompareView: View {
     private static let firstColor = Color.blue
     private static let secondColor = Color.orange
 
-    init(report: PowerReport, initialDay: Int) {
+    /// `initialDay` indexes the reports for `period`.
+    init(report: PowerReport, initialDay: Int, period: ReportPeriod = .days) {
         self.report = report
-        _first = State(initialValue: initialDay)
-        // Default to the nearest other full day that mostly ran on battery, so the curves are worth comparing.
-        let full = report.days.indices.filter { $0 != initialDay && !report.days[$0].partial }
-        let onBattery = full.filter { report.days[$0].stats.hoursOnBattery >= 6 }
-        let candidates = onBattery.isEmpty ? full : onBattery
-        _second = State(initialValue: candidates.min { abs($0 - initialDay) < abs($1 - initialDay) } ?? max(0, initialDay - 1))
+        let stretches = report.unplugged ?? []
+        let period = stretches.isEmpty ? .days : period
+        _period = State(initialValue: period)
+        let lastFullDay = report.days.count - ((report.days.last?.partial ?? false) && report.days.count > 1 ? 2 : 1)
+        let firstDay = period == .days ? initialDay : max(0, lastFullDay)
+        let firstStretch = period == .unplugged ? initialDay : max(0, stretches.count - 1)
+        _firstDay = State(initialValue: firstDay)
+        _secondDay = State(initialValue: Self.defaultSecond(in: report.days, comparedWith: firstDay))
+        _firstStretch = State(initialValue: firstStretch)
+        _secondStretch = State(initialValue: Self.defaultSecond(in: stretches, comparedWith: firstStretch))
     }
 
-    private var dayA: DayReport { report.days[first] }
-    private var dayB: DayReport { report.days[second] }
-    private var labelA: String { Format.shortDate(dayA) }
-    private var labelB: String { labelA == Format.shortDate(dayB) ? "\(Format.shortDate(dayB)) " : Format.shortDate(dayB) }
+    /// The nearest other full day or stretch that mostly ran on battery, so the curves are worth comparing.
+    private static func defaultSecond(in reports: [DayReport], comparedWith initial: Int) -> Int {
+        let full = reports.indices.filter { $0 != initial && !reports[$0].partial }
+        let onBattery = full.filter { reports[$0].stats.hoursOnBattery >= 6 }
+        let candidates = onBattery.isEmpty ? full : onBattery
+        return candidates.min { abs($0 - initial) < abs($1 - initial) } ?? max(0, initial - 1)
+    }
+
+    private var reports: [DayReport] { period.reports(in: report) }
+    private var first: Binding<Int> { period == .days ? $firstDay : $firstStretch }
+    private var second: Binding<Int> { period == .days ? $secondDay : $secondStretch }
+    private var dayA: DayReport { reports[min(first.wrappedValue, reports.count - 1)] }
+    private var dayB: DayReport { reports[min(second.wrappedValue, reports.count - 1)] }
+    private var labelA: String { dayA.title }
+    private var labelB: String { labelA == dayB.title ? "\(dayB.title) " : dayB.title }
 
     var body: some View {
         List {
             Section {
-                dayPicker("First Day", selection: $first, color: Self.firstColor)
-                dayPicker("Second Day", selection: $second, color: Self.secondColor)
+                if report.unplugged?.isEmpty == false {
+                    Picker("Compare", selection: $period) {
+                        ForEach(ReportPeriod.allCases) { Text($0.rawValue).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
+                }
+                dayPicker(period == .days ? "First Day" : "First Unplugged", selection: first, color: Self.firstColor)
+                dayPicker(period == .days ? "Second Day" : "Second Unplugged", selection: second, color: Self.secondColor)
+            } footer: {
+                if period == .unplugged {
+                    Text("Each runs from when it was unplugged until it was next plugged in.")
+                }
             }
 
             Section {
@@ -52,9 +83,7 @@ struct CompareView: View {
             } header: {
                 Text("Battery Level")
             } footer: {
-                Text(alignment == .sinceUnplugged
-                     ? "Each day starts from the beginning of its longest stretch on battery, so tests started at different times line up."
-                     : "Both days on the same 24-hour clock.")
+                Text(curveFooter)
             }
 
             metricsSection
@@ -63,16 +92,27 @@ struct CompareView: View {
         }
         .navigationTitle("Compare Days")
         .navigationBarTitleDisplayMode(.inline)
-        .animation(.default, value: first)
-        .animation(.default, value: second)
+        .animation(.default, value: first.wrappedValue)
+        .animation(.default, value: second.wrappedValue)
         .animation(.default, value: alignment)
+        .animation(.default, value: period)
+    }
+
+    private var curveFooter: String {
+        switch (alignment, period) {
+        case (.sinceUnplugged, .days):
+            "Each day starts from the beginning of its longest stretch on battery, so tests started at different times line up."
+        case (.sinceUnplugged, .unplugged): "Both start from when they were unplugged."
+        case (.timeOfDay, .days): "Both days on the same 24-hour clock."
+        case (.timeOfDay, .unplugged): "Both on the same clock, from midnight of the day each was unplugged."
+        }
     }
 
     private func dayPicker(_ title: String, selection: Binding<Int>, color: Color) -> some View {
         Picker(selection: selection) {
-            ForEach(report.days.indices.reversed(), id: \.self) { index in
-                let day = report.days[index]
-                Text("\(Format.shortDate(day)) · \(Int(day.stats.used.rounded()))% used")
+            ForEach(reports.indices.reversed(), id: \.self) { index in
+                let day = reports[index]
+                Text("\(day.title) · \(Int(day.stats.used.rounded()))% used")
                     .tag(index)
             }
         } label: {
@@ -94,8 +134,9 @@ struct CompareView: View {
         let segment: Int
     }
 
-    /// The start of the longest run of on-battery samples, in hours since midnight.
+    /// When it was unplugged for a stretch, otherwise the start of the day's longest run of on-battery samples.
     private func unplugHour(_ day: DayReport) -> Double {
+        if let stretch = day.stretch { return stretch.start }
         var best = (start: day.battery.first?.hour ?? 0, length: 0.0)
         var runStart: Double?
         for (index, sample) in day.battery.enumerated() {
@@ -108,11 +149,13 @@ struct CompareView: View {
     }
 
     private func points(for day: DayReport, label: String) -> [CurvePoint] {
-        let offset = alignment == .sinceUnplugged ? unplugHour(day) : 0
+        let start = alignment == .sinceUnplugged ? unplugHour(day) : 0
+        // Time of day counts from midnight, which for a stretch is before its hour 0.
+        let offset = alignment == .sinceUnplugged ? start : -Double(day.axis.startHour)
         var segment = 0
         var previous: Double?
         return day.battery.enumerated().compactMap { index, sample in
-            guard sample.hour >= offset else { return nil }
+            guard sample.hour >= start else { return nil }
             if let previous, sample.hour - previous >= 0.5 { segment += 1 }
             previous = sample.hour
             return CurvePoint(id: "\(label)-\(index)", day: label, hour: sample.hour - offset, level: sample.level, segment: segment)
@@ -121,6 +164,9 @@ struct CompareView: View {
 
     private var curveChart: some View {
         let all = points(for: dayA, label: labelA) + points(for: dayB, label: labelB)
+        // Stretches can run past 24 hours; widen to whole 6-hour steps.
+        let upper = max(24, ((all.map(\.hour).max() ?? 24) / 6).rounded(.up) * 6)
+        let step = upper <= 30 ? 6.0 : upper <= 60 ? 12 : 24
         return Chart(all) { point in
             LineMark(x: .value("Hour", point.hour), y: .value("Level", point.level),
                      series: .value("Series", "\(point.day)-\(point.segment)"))
@@ -129,10 +175,10 @@ struct CompareView: View {
         }
         .chartForegroundStyleScale([labelA: Self.firstColor, labelB: Self.secondColor])
         .chartLegend(position: .top, alignment: .leading)
-        .chartXScale(domain: 0...24)
+        .chartXScale(domain: 0...upper)
         .chartYScale(domain: 0...100)
         .chartXAxis {
-            AxisMarks(values: [0, 6, 12, 18, 24]) { value in
+            AxisMarks(values: Array(stride(from: 0, through: upper, by: step))) { value in
                 AxisGridLine()
                 AxisValueLabel {
                     let hour = value.as(Double.self) ?? 0

@@ -59,10 +59,12 @@ nonisolated struct SysdiagnoseImporter {
         progress(ImportProgress(stage: .analyzing, fraction: 0))
         let db = try SQLiteDatabase(url: powerLog)
         let analyzer = PowerLogAnalyzer(db: db, timeZone: timeZone)
-        let (days, captured) = try analyzer.analyze { progress(ImportProgress(stage: .analyzing, fraction: $0)) }
+        let charging = analyzer.chargingSessions()
+        let (days, unplugged, captured) = try analyzer.analyze(charging: charging) {
+            progress(ImportProgress(stage: .analyzing, fraction: $0))
+        }
         let config = analyzer.config()
         let battery = analyzer.batteryInfo()
-        let charging = analyzer.chargingSessions()
 
         progress(ImportProgress(stage: .saving, fraction: 1))
         let meta = ReportMeta(
@@ -75,7 +77,8 @@ nonisolated struct SysdiagnoseImporter {
             battery: battery.info
         )
         return PowerReport(id: UUID(), importedAt: .now, sourceName: name, meta: meta, days: days,
-                           charging: charging.isEmpty ? nil : charging, stability: stability)
+                           charging: charging.isEmpty ? nil : charging, stability: stability,
+                           unplugged: unplugged.isEmpty ? nil : unplugged)
     }
 
     // MARK: - Archive

@@ -3,10 +3,12 @@ import SwiftUI
 struct HighlightsSection: View {
     let day: DayReport
     let report: PowerReport
+    /// The days or stretches on battery to compare with.
+    let others: [DayReport]
     let stabilityEvents: [StabilityEvent]
 
     var body: some View {
-        let items = HighlightRanker.highlights(for: day, in: report.days, stability: stabilityEvents,
+        let items = HighlightRanker.highlights(for: day, in: others, stability: stabilityEvents,
                                                whPerPercent: report.meta.whPerPercent)
         if !items.isEmpty {
             Section {

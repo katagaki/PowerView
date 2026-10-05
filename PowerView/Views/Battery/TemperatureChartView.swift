@@ -1,9 +1,10 @@
 import Charts
 import SwiftUI
 
-/// Battery temperature through the day on the same 0–24 h axis as the battery chart.
+/// Battery temperature through the day on the same time axis as the battery chart.
 struct TemperatureChartView: View {
     let series: TemperatureSeries
+    var axis = TimeAxis()
     @State private var selectedHour: Double?
 
     /// Above this, iOS starts managing charging and performance to protect the battery.
@@ -31,7 +32,7 @@ struct TemperatureChartView: View {
                     .foregroundStyle(.orange)
                 Spacer()
                 if let peak {
-                    Text("Peak \(peak.maximum, format: .number.precision(.fractionLength(1))) °C at \(Format.clock(Double(peak.bin) / 4))")
+                    Text("Peak \(peak.maximum, format: .number.precision(.fractionLength(1))) °C at \(axis.clock(Double(peak.bin) / 4))")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .monospacedDigit()
@@ -65,7 +66,7 @@ struct TemperatureChartView: View {
                         .foregroundStyle(Color.secondary.opacity(0.6))
                         .annotation(position: .top, spacing: 0, overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("\(Format.clock(Double(selected.bin) / 4))–\(Format.clock(Double(selected.bin + 1) / 4))")
+                                Text("\(axis.clock(Double(selected.bin) / 4))–\(axis.clock(Double(selected.bin + 1) / 4))")
                                     .font(.caption.weight(.semibold))
                                 Text("\(selected.average, format: .number.precision(.fractionLength(1))) °C")
                                     .font(.headline)
@@ -79,12 +80,12 @@ struct TemperatureChartView: View {
                         }
                 }
             }
-            .chartXScale(domain: 0...24)
+            .chartXScale(domain: axis.domain)
             .chartYScale(domain: domain)
             .chartXAxis {
-                AxisMarks(values: [0, 6, 12, 18, 24]) { value in
+                AxisMarks(values: axis.marks) { value in
                     AxisGridLine()
-                    AxisValueLabel { Text(Format.clock(value.as(Double.self) ?? 0)) }
+                    AxisValueLabel { Text(axis.clock(value.as(Double.self) ?? 0)) }
                 }
             }
             .chartYAxis {

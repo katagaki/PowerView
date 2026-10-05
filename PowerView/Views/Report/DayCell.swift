@@ -11,9 +11,17 @@ struct DayCell: View {
             Text(Format.weekday(day))
                 .font(.caption2)
                 .foregroundStyle(isSelected ? .white.opacity(0.85) : .secondary)
-            Text(Format.dayNumber(day))
-                .font(.body.weight(.semibold))
-                .monospacedDigit()
+            if let stretch = day.stretch {
+                // The time it was unplugged, which is what tells stretches apart.
+                Text(day.axis.clock(stretch.start))
+                    .font(.footnote.weight(.semibold))
+                    .monospacedDigit()
+                    .frame(height: 22)
+            } else {
+                Text(Format.dayNumber(day))
+                    .font(.body.weight(.semibold))
+                    .monospacedDigit()
+            }
             Capsule()
                 .fill(isSelected ? .white.opacity(0.3) : Color(.tertiarySystemFill))
                 .frame(width: 6, height: 26)
@@ -35,8 +43,13 @@ struct DayCell: View {
         .foregroundStyle(isSelected ? .white : .primary)
         .contentShape(.rect)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(Format.longDate(day)), \(Int(used.rounded())) percent used, \(day.tier.title)")
+        .accessibilityLabel(accessibilityLabel(used: used))
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+    }
+
+    private func accessibilityLabel(used: Double) -> String {
+        let when = day.stretch.map { "Unplugged \(Format.longDate(day)) at \(day.axis.clock($0.start))" } ?? Format.longDate(day)
+        return "\(when), \(Int(used.rounded())) percent used, \(day.tier.title)"
     }
 
     private var tierColor: Color {

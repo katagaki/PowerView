@@ -60,12 +60,12 @@ struct BatteryChartView: View {
             eventMarks
             selectionMarks
         }
-        .chartXScale(domain: 0...24)
+        .chartXScale(domain: day.axis.domain)
         .chartYScale(domain: 0...(hasScreenBar ? 110 : 100))
         .chartXAxis {
-            AxisMarks(values: [0, 6, 12, 18, 24]) { value in
+            AxisMarks(values: day.axis.marks) { value in
                 AxisGridLine()
-                AxisValueLabel { Text(Format.clock(value.as(Double.self) ?? 0)) }
+                AxisValueLabel { Text(day.axis.clock(value.as(Double.self) ?? 0)) }
             }
         }
         .chartYAxis {
@@ -136,7 +136,7 @@ struct BatteryChartView: View {
 
     private func callout(for sample: BatterySample) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(Format.clock(sample.hour))
+            Text(day.axis.clock(sample.hour))
                 .font(.caption.weight(.semibold))
             Text("\(sample.level)%")
                 .font(.title3.weight(.semibold))

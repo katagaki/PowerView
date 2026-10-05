@@ -44,7 +44,8 @@ nonisolated struct PowerLogAnalyzer {
 
     private static let componentOrder = ["Processor (CPU/GPU/NPU)", "Memory & Rest of Chip", "Display", "Cellular Modem", "Wi-Fi", "Other"]
 
-    func analyze(progress: (Double) -> Void) throws -> (days: [DayReport], captured: Date) {
+    /// Analyzes each calendar day, then each stretch on battery between the given charging sessions.
+    func analyze(charging: [ChargingSession], progress: (Double) -> Void) throws -> (days: [DayReport], unplugged: [DayReport], captured: Date) {
         guard let first = db.scalar("select min(timestamp) from \(Self.batteryTable)")?.double,
               let last = db.scalar("select max(timestamp) from \(Self.batteryTable)")?.double else {
             throw AnalyzerError.noBatteryData
@@ -70,18 +71,49 @@ nonisolated struct PowerLogAnalyzer {
         let lastDay = calendar.startOfDay(for: captured)
         let totalDays = max(1, (calendar.dateComponents([.day], from: day, to: lastDay).day ?? 0) + 1)
 
+        // Stretches on battery: from the end of each charging session to the start of the next.
+        // Short gaps are a phone briefly lifted off its charger, not a stretch worth looking at.
+        let stretches = charging.indices.compactMap { index -> (start: Double, end: Double?)? in
+            let start = charging[index].end.timeIntervalSince1970
+            let end = index + 1 < charging.count ? charging[index + 1].start.timeIntervalSince1970 : nil
+            guard start >= first, start < last, (end ?? last) - start >= 30 * 60 else { return nil }
+            return (start, end)
+        }
+        let total = Double(totalDays + stretches.count)
+
         var days: [DayReport] = []
         while day <= lastDay {
             let next = calendar.date(byAdding: .day, value: 1, to: day)!
-            days.append(analyzeDay(
+            days.append(analyzeSpan(
                 start: day.timeIntervalSince1970, end: next.timeIntervalSince1970,
                 date: formatter.string(from: day), isPartial: day == lastDay,
                 captured: last, nodes: nodes, cpuNode: cpuNode
             ))
-            progress(Double(days.count) / Double(totalDays))
+            progress(Double(days.count) / total)
             day = next
         }
-        return (days, captured)
+
+        var unplugged: [DayReport] = []
+        for stretch in stretches {
+            // Hour 0 is the start of the hour it was unplugged in, so hourly records line up.
+            let origin = calendar.dateInterval(of: .hour, for: Date(timeIntervalSince1970: stretch.start))!.start
+            let a = origin.timeIntervalSince1970
+            // Include the final sample when it's still on battery at capture.
+            let b = stretch.end ?? last + 1
+            let hours = max(1, Int(((b - a) / 3600).rounded(.up)))
+            var report = analyzeSpan(start: a, end: b, from: stretch.start, hours: hours,
+                                     date: formatter.string(from: origin), isPartial: stretch.end == nil,
+                                     captured: last, nodes: nodes, cpuNode: cpuNode)
+            report.stretch = BatteryStretch(
+                unplugged: Date(timeIntervalSince1970: stretch.start),
+                pluggedIn: stretch.end.map { Date(timeIntervalSince1970: $0) },
+                startHour: calendar.component(.hour, from: origin), hours: hours,
+                start: (stretch.start - a) / 3600, end: (min(b, last) - a) / 3600
+            )
+            if !report.battery.isEmpty { unplugged.append(report) }
+            progress(Double(days.count + unplugged.count) / total)
+        }
+        return (days, unplugged, captured)
     }
 
     /// Power logs aren't indexed by time, and each day queries every table, so index them once up front.
@@ -99,15 +131,20 @@ nonisolated struct PowerLogAnalyzer {
         db.execute("commit")
     }
 
-    // MARK: - One day
+    // MARK: - One day or stretch
 
-    private func analyzeDay(start a: Double, end b: Double, date: String, isPartial: Bool,
-                            captured: Double, nodes: [Int: String], cpuNode: Int?) -> DayReport {
+    /// Hours count from `a`. Events are taken from `s` on, while hourly records cover whole hours from `a`.
+    /// Daily totals are only used for whole days, since they can't be split.
+    private func analyzeSpan(start a: Double, end b: Double, from s: Double? = nil, hours: Int = 24,
+                             date: String, isPartial: Bool,
+                             captured: Double, nodes: [Int: String], cpuNode: Int?) -> DayReport {
+        let s = s ?? a
+        let isDay = s == a && hours == 24
         func hour(_ t: Double) -> Double { ((t - a) / 3600 * 1000).rounded() / 1000 }
         func count(_ sql: String) -> Int { db.scalar(sql, a, b)?.int ?? 0 }
 
         // Battery level (5-minute UI samples)
-        let battery = db.rows("select timestamp, Level, IsCharging from \(Self.batteryTable) where timestamp >= ? and timestamp < ? order by timestamp", a, b)
+        let battery = db.rows("select timestamp, Level, IsCharging from \(Self.batteryTable) where timestamp >= ? and timestamp < ? order by timestamp", s, b)
             .compactMap { row -> BatterySample? in
                 guard let t = row[0].double, let level = row[1].double else { return nil }
                 return BatterySample(hour: hour(t), level: Int(level.rounded()), charging: (row[2].int ?? 0) != 0)
@@ -117,12 +154,12 @@ nonisolated struct PowerLogAnalyzer {
 
         let isHourly = count("select count(*) from \(Self.rootEnergy) where timeInterval=3600 and timestamp >= ? and timestamp < ?") > 0
         let interval = isHourly ? 3600 : 86400
-        if count("select count(*) from \(Self.rootEnergy) where timestamp >= ? and timestamp < ?") > 0 {
+        if isHourly || isDay, count("select count(*) from \(Self.rootEnergy) where timestamp >= ? and timestamp < ?") > 0 {
             report.tier = isHourly ? .hourly : .daily
         }
 
         // Components and totals
-        let rootRows = db.rows("select RootNodeID, sum(Energy) from \(Self.rootEnergy) where timeInterval=? and timestamp >= ? and timestamp < ? group by RootNodeID", interval, a, b)
+        let rootRows = report.tier == .battery ? [] : db.rows("select RootNodeID, sum(Energy) from \(Self.rootEnergy) where timeInterval=? and timestamp >= ? and timestamp < ? group by RootNodeID", interval, a, b)
         if !rootRows.isEmpty {
             var byComponent: [String: Double] = [:]
             var total = 0.0
@@ -136,7 +173,7 @@ nonisolated struct PowerLogAnalyzer {
         }
 
         // Apps: total, on-screen and background energy
-        let totals = pairs(db.rows("select NodeID, sum(Energy) from \(Self.rootEnergy) where timeInterval=? and timestamp >= ? and timestamp < ? group by NodeID", interval, a, b))
+        let totals = report.tier == .battery ? [:] : pairs(db.rows("select NodeID, sum(Energy) from \(Self.rootEnergy) where timeInterval=? and timestamp >= ? and timestamp < ? group by NodeID", interval, a, b))
         let onScreen = pairs(db.rows("select NodeID, sum(Energy) from \(Self.qualificationEnergy) where timeInterval=? and QualificationID=? and timestamp >= ? and timestamp < ? group by NodeID", interval, Self.displayOnQualification, a, b))
         var runTime: [String: (Double, Double, Double)] = [:]
         for row in db.rows("select BundleID, sum(ScreenOnTime), sum(BackgroundTime), sum(BackgroundAudioPlayingTime) from \(Self.appRunTime) where timeInterval=? and timestamp >= ? and timestamp < ? group by BundleID", interval, a, b) {
@@ -163,7 +200,7 @@ nonisolated struct PowerLogAnalyzer {
 
         // Hour-by-hour lanes
         if isHourly {
-            report.hourly = hourlyLanes(start: a, end: b, cpuNode: cpuNode, nodes: nodes)
+            report.hourly = hourlyLanes(start: a, end: b, hours: hours, cpuNode: cpuNode, nodes: nodes)
             report.hasUsageTime = count("select count(*) from \(Self.usageTime) where timestamp >= ? and timestamp < ?") > 0
             report.hasKeepAlive = count("select count(*) from \(Self.keepAlive) where timestamp >= ? and timestamp < ?") > 0
         }
@@ -171,7 +208,7 @@ nonisolated struct PowerLogAnalyzer {
         // Settings events: Always-On Display and Low Power Mode
         var events: [SettingEvent] = []
         var previous: (Int, Int?)?
-        for row in db.rows("select timestamp, alwaysOnEnabledSetting, lowPowerMode from \(Self.alwaysOnState) where timestamp >= ? and timestamp < ? order by timestamp", a, b) {
+        for row in db.rows("select timestamp, alwaysOnEnabledSetting, lowPowerMode from \(Self.alwaysOnState) where timestamp >= ? and timestamp < ? order by timestamp", s, b) {
             guard let t = row[0].double, let setting = row[1].int else { continue }
             let lowPower = row[2].int
             if previous == nil || previous!.0 != setting {
@@ -182,57 +219,57 @@ nonisolated struct PowerLogAnalyzer {
             }
             previous = (setting, lowPower)
         }
-        for row in db.rows("select timestamp, LpmEnabled, Source from \(Self.lowPowerSource) where timestamp >= ? and timestamp < ?", a, b) {
+        for row in db.rows("select timestamp, LpmEnabled, Source from \(Self.lowPowerSource) where timestamp >= ? and timestamp < ?", s, b) {
             guard let t = row[0].double else { continue }
             let source = row[2].string.map { " (\($0))" } ?? ""
             events.append(SettingEvent(hour: hour(t), text: "Low Power Mode \((row[1].int ?? 0) != 0 ? "on" : "off")\(source)"))
         }
         if !events.isEmpty { report.events = events.sorted { $0.hour < $1.hour } }
-        if let setting = db.scalar("select alwaysOnEnabledSetting from \(Self.alwaysOnState) where timestamp < ? and alwaysOnEnabledSetting is not null order by timestamp desc limit 1", a)?.int {
+        if let setting = db.scalar("select alwaysOnEnabledSetting from \(Self.alwaysOnState) where timestamp < ? and alwaysOnEnabledSetting is not null order by timestamp desc limit 1", s)?.int {
             report.aodAtStart = setting != 0
         }
 
         // Event-level detail (only kept for the last couple of days)
         if count("select count(*) from \(Self.backlight) where timestamp >= ? and timestamp < ?") > 0 {
-            report.detail = eventDetail(start: a, end: b, captured: captured, hour: hour)
+            report.detail = eventDetail(start: a, end: b, from: s, hours: hours, captured: captured, hour: hour)
             report.tier = .detailed
         }
 
-        if let notifications = notifications(start: a, end: b) {
+        if let notifications = notifications(start: a, end: b, hours: hours) {
             report.notifications = notifications.apps
             report.notificationsByHour = notifications.byHour
         }
-        report.wakes = wakes(start: a, end: b)
+        report.wakes = wakes(start: a, end: b, from: s, hours: hours)
         if let screen = report.detail?.screen {
-            report.screenApps = screenApps(start: a, end: b, screen: screen)
+            report.screenApps = screenApps(start: a, end: b, from: s, hours: hours, screen: screen)
         }
-        report.brightness = brightness(start: a, end: b)
-        report.temperature = temperature(start: a, end: b)
+        report.brightness = brightness(start: a, end: b, from: s, hours: hours)
+        report.temperature = temperature(start: a, end: b, from: s, hours: hours)
         return report
     }
 
-    private func hourlyLanes(start a: Double, end b: Double, cpuNode: Int?, nodes: [Int: String]) -> HourlyLanes {
+    private func hourlyLanes(start a: Double, end b: Double, hours: Int, cpuNode: Int?, nodes: [Int: String]) -> HourlyLanes {
         func lane(_ sql: String, _ args: Any...) -> [Int] {
-            var values = Array(repeating: 0.0, count: 24)
+            var values = Array(repeating: 0.0, count: hours)
             for row in db.rows(sql, arguments: args) {
                 guard let t = row[0].double, let v = row[1].double, v != 0 else { continue }
                 let h = Int((t - a) / 3600)
-                if (0..<24).contains(h) { values[h] += v }
+                if (0..<hours).contains(h) { values[h] += v }
             }
             return values.map { Int($0.rounded()) }
         }
         func rootLane(_ match: (String) -> Bool) -> [Int] {
             let ids = nodes.filter { match($0.value) }.keys.map(String.init).joined(separator: ",")
-            guard !ids.isEmpty else { return Array(repeating: 0, count: 24) }
+            guard !ids.isEmpty else { return Array(repeating: 0, count: hours) }
             return lane("select timestamp, Energy/1e3 from \(Self.rootEnergy) where timeInterval=3600 and RootNodeID in (\(ids)) and timestamp >= ? and timestamp < ?", a, b)
         }
 
         // Audio: the longest any app played in that hour, so overlapping apps aren't double counted.
-        var audio = Array(repeating: 0, count: 24)
+        var audio = Array(repeating: 0, count: hours)
         for row in db.rows("select timestamp, max(BackgroundAudioPlayingTime) from \(Self.appRunTime) where timeInterval=3600 and timestamp >= ? and timestamp < ? group by timestamp", a, b) {
             guard let t = row[0].double, let v = row[1].double else { continue }
             let h = Int((t - a) / 3600)
-            if (0..<24).contains(h) { audio[h] = max(audio[h], Int(v.rounded())) }
+            if (0..<hours).contains(h) { audio[h] = max(audio[h], Int(v.rounded())) }
         }
 
         return HourlyLanes(
@@ -242,7 +279,7 @@ nonisolated struct PowerLogAnalyzer {
             audio: audio,
             keepAliveCellular: lane("select timestamp, Count from \(Self.keepAlive) where ConnectionType=0 and timestamp >= ? and timestamp < ?", a, b),
             keepAliveWiFi: lane("select timestamp, Count from \(Self.keepAlive) where ConnectionType=1 and timestamp >= ? and timestamp < ?", a, b),
-            systemCPU: cpuNode.map { lane("select timestamp, Energy/1e3 from \(Self.rootEnergy) where timeInterval=3600 and NodeID=? and timestamp >= ? and timestamp < ?", $0, a, b) } ?? Array(repeating: 0, count: 24),
+            systemCPU: cpuNode.map { lane("select timestamp, Energy/1e3 from \(Self.rootEnergy) where timeInterval=3600 and NodeID=? and timestamp >= ? and timestamp < ?", $0, a, b) } ?? Array(repeating: 0, count: hours),
             total: lane("select timestamp, Energy/1e3 from \(Self.rootEnergy) where timeInterval=3600 and timestamp >= ? and timestamp < ?", a, b),
             modem: rootLane { $0.hasPrefix("BB") },
             wifi: rootLane { $0.hasPrefix("WiFi") },
@@ -250,9 +287,9 @@ nonisolated struct PowerLogAnalyzer {
         )
     }
 
-    private func eventDetail(start a: Double, end b: Double, captured: Double, hour: (Double) -> Double) -> EventDetail {
-        // Screen intervals. Start a day early so a screen session spanning midnight is included.
-        let states = db.rows("select timestamp, state from \(Self.backlight) where timestamp >= ? and timestamp < ? order by timestamp", a - 86400, b)
+    private func eventDetail(start a: Double, end b: Double, from s: Double, hours: Int, captured: Double, hour: (Double) -> Double) -> EventDetail {
+        // Screen intervals. Start a day early so a screen session spanning the start is included.
+        let states = db.rows("select timestamp, state from \(Self.backlight) where timestamp >= ? and timestamp < ? order by timestamp", s - 86400, b)
             .compactMap { row -> (Double, String)? in
                 guard let t = row[0].double, let state = row[1].string else { return nil }
                 return (t, state)
@@ -260,37 +297,37 @@ nonisolated struct PowerLogAnalyzer {
         var screen: [HourRange] = []
         for (index, (t0, state)) in states.enumerated() {
             let t1 = index + 1 < states.count ? states[index + 1].0 : min(b, captured)
-            if state == "active" || state == "activeDimmed", t1 > a, t1 - t0 > 5 {
-                screen.append(HourRange(start: hour(max(t0, a)), end: hour(min(t1, b))))
+            if state == "active" || state == "activeDimmed", t1 > s, t1 - t0 > 5 {
+                screen.append(HourRange(start: hour(max(t0, s)), end: hour(min(t1, b))))
             }
         }
 
-        // Cellular technology changes, starting from the state carried in from before midnight.
+        // Cellular technology changes, starting from the state carried in from before the start.
         var radio: [RadioChange] = []
         var previous: String?
         for row in db.rows("select timestamp, dataInd from \(Self.registration) where dataInd in ('4G','5G','3G','LTE') and timestamp < ? order by timestamp", b) {
             guard let t = row[0].double, let technology = row[1].string, technology != previous else { continue }
-            if t >= a {
+            if t >= s {
                 radio.append(RadioChange(hour: hour(t), technology: technology))
             } else if radio.isEmpty {
-                radio = [RadioChange(hour: 0, technology: technology)]
+                radio = [RadioChange(hour: hour(s), technology: technology)]
             } else {
-                radio[0] = RadioChange(hour: 0, technology: technology)
+                radio[0] = RadioChange(hour: hour(s), technology: technology)
             }
             previous = technology
         }
 
-        let data = db.rows("select cast(((timestamp+timestampEnd)/2 - ?)/900 as int) k, sum(WifiIn+WifiOut), sum(CellIn+CellOut) from \(Self.networkUsage) where timestamp >= ? and timestamp < ? group by k order by k", a, a, b)
+        let data = db.rows("select cast(((timestamp+timestampEnd)/2 - ?)/900 as int) k, sum(WifiIn+WifiOut), sum(CellIn+CellOut) from \(Self.networkUsage) where timestamp >= ? and timestamp < ? group by k order by k", a, s, b)
             .compactMap { row -> DataBin? in
-                guard let bin = row[0].int, (0..<96).contains(bin) else { return nil }
+                guard let bin = row[0].int, (0..<hours * 4).contains(bin) else { return nil }
                 return DataBin(bin: bin, wifiMB: round2((row[1].double ?? 0) / 1e6), cellularMB: round3((row[2].double ?? 0) / 1e6))
             }
-        let bars = db.rows("select cast((timestamp - ?)/900 as int) k, avg(signalBars) from \(Self.telephonyActivity) where signalBars is not null and timestamp >= ? and timestamp < ? group by k", a, a, b)
+        let bars = db.rows("select cast((timestamp - ?)/900 as int) k, avg(signalBars) from \(Self.telephonyActivity) where signalBars is not null and timestamp >= ? and timestamp < ? group by k", a, s, b)
             .compactMap { row -> SignalBin? in
-                guard let bin = row[0].int, let value = row[1].double, (0..<96).contains(bin) else { return nil }
+                guard let bin = row[0].int, let value = row[1].double, (0..<hours * 4).contains(bin) else { return nil }
                 return SignalBin(bin: bin, bars: (value * 10).rounded() / 10)
             }
-        let dataApps = db.rows("select coalesce(nullif(BundleName,''), ProcessName) n, sum(WifiIn+WifiOut) w, sum(CellIn+CellOut) c from \(Self.networkUsage) where timestamp >= ? and timestamp < ? group by n order by w+c desc limit 8", a, b)
+        let dataApps = db.rows("select coalesce(nullif(BundleName,''), ProcessName) n, sum(WifiIn+WifiOut) w, sum(CellIn+CellOut) c from \(Self.networkUsage) where timestamp >= ? and timestamp < ? group by n order by w+c desc limit 8", s, b)
             .compactMap { row -> DataApp? in
                 guard let name = row[0].string else { return nil }
                 return DataApp(name: ProcessNames.name(for: name), wifiMB: ((row[1].double ?? 0) / 1e5).rounded() / 10, cellularMB: round2((row[2].double ?? 0) / 1e6))

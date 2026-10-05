@@ -47,8 +47,10 @@ struct HourlyLanesView: View {
         return lanes
     }
 
+    private var hours: Int { hourly.total.count }
+
     private var selectedHour: Int? {
-        selection.map { min(23, max(0, Int($0))) }
+        selection.map { min(hours - 1, max(0, Int($0))) }
     }
 
     private var highlight: ClosedRange<Double>? {
@@ -63,9 +65,9 @@ struct HourlyLanesView: View {
                     connectionLane
                 }
                 LaneChart(title: lane.name, total: lane.total, domainMax: lane.max,
-                          showsAxis: index == lanes.count - 1, highlight: highlight, selection: $selection) {
+                          showsAxis: index == lanes.count - 1, axis: day.axis, highlight: highlight, selection: $selection) {
                     pluggedShading(max: lane.max)
-                    ForEach(0..<24, id: \.self) { hour in
+                    ForEach(0..<min(hours, lane.values.count), id: \.self) { hour in
                         LaneBar(start: Double(hour) + 0.08, end: Double(hour) + 0.92, value: min(lane.values[hour], lane.max), style: lane.color.gradient)
                     }
                 }
@@ -83,9 +85,9 @@ struct HourlyLanesView: View {
     private var connectionLane: some View {
         let share = hourly.wifiShare
         return LaneChart(title: "Connection (Wi-Fi vs Cellular)", total: share.map { "\(Int(($0 * 100).rounded()))% Wi-Fi" } ?? "—",
-                         domainMax: 1, highlight: highlight, selection: $selection) {
+                         domainMax: 1, axis: day.axis, highlight: highlight, selection: $selection) {
             pluggedShading(max: 1)
-            ForEach(0..<24, id: \.self) { hour in
+            ForEach(0..<hours, id: \.self) { hour in
                 let cellular = Double(hourly.keepAliveCellular[hour]), wifi = Double(hourly.keepAliveWiFi[hour])
                 if cellular + wifi > 0 {
                     let cellularShare = cellular / (cellular + wifi)
@@ -100,7 +102,7 @@ struct HourlyLanesView: View {
 
     @ChartContentBuilder
     private func pluggedShading(max: Double) -> some ChartContent {
-        ForEach(0..<24, id: \.self) { hour in
+        ForEach(0..<hours, id: \.self) { hour in
             if hourly.plugged[hour] >= 1800 {
                 LaneBar(start: Double(hour), end: Double(hour + 1), value: max, style: Color.gray.opacity(0.18))
             }
@@ -117,7 +119,7 @@ struct HourlyLanesView: View {
             VStack(alignment: .leading, spacing: 6) {
                 if let hour {
                     HStack {
-                        Text("\(Format.clock(Double(hour)))–\(Format.clock(Double(hour + 1)))")
+                        Text("\(day.axis.clock(Double(hour)))–\(day.axis.clock(Double(hour + 1)))")
                             .font(.headline)
                         Spacer()
                         if hourly.plugged[hour] >= 1800 {
@@ -128,7 +130,9 @@ struct HourlyLanesView: View {
                     }
                     Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 3) {
                         ForEach(lanes) { lane in
-                            row(lane.name, lane.format(lane.values[hour]), lane.color)
+                            if hour < lane.values.count {
+                                row(lane.name, lane.format(lane.values[hour]), lane.color)
+                            }
                         }
                         if day.hasKeepAlive {
                             row("Connection", hourly.connection(at: hour), .blue)

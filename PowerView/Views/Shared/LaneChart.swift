@@ -1,13 +1,14 @@
 import Charts
 import SwiftUI
 
-/// One row of a lane chart: a title, a total, and a short chart on a shared 0–24 h axis.
+/// One row of a lane chart: a title, a total, and a short chart on a shared time axis.
 struct LaneChart<Content: ChartContent>: View {
     let title: String
     var total: String?
     var height: CGFloat = 30
     var domainMax: Double = 1
     var showsAxis = false
+    var axis = TimeAxis()
     /// The time range to highlight, in hours.
     var highlight: ClosedRange<Double>?
     @Binding var selection: Double?
@@ -34,13 +35,13 @@ struct LaneChart<Content: ChartContent>: View {
                         .foregroundStyle(.primary.opacity(0.1))
                 }
             }
-            .chartXScale(domain: 0...24)
+            .chartXScale(domain: axis.domain)
             .chartYScale(domain: 0...domainMax)
             .chartYAxis(.hidden)
             .chartXAxis {
-                AxisMarks(values: showsAxis ? [0, 6, 12, 18, 24] : []) { value in
+                AxisMarks(values: showsAxis ? axis.marks : []) { value in
                     AxisGridLine()
-                    AxisValueLabel { Text(Format.clock(value.as(Double.self) ?? 0)) }
+                    AxisValueLabel { Text(axis.clock(value.as(Double.self) ?? 0)) }
                 }
             }
             .chartPlotStyle { plot in
