@@ -164,9 +164,13 @@ struct CompareView: View {
 
     private var curveChart: some View {
         let all = points(for: dayA, label: labelA) + points(for: dayB, label: labelB)
-        // Stretches can run past 24 hours; widen to whole 6-hour steps.
-        let upper = max(24, ((all.map(\.hour).max() ?? 24) / 6).rounded(.up) * 6)
-        let step = upper <= 30 ? 6.0 : upper <= 60 ? 12 : 24
+        // Fit the axis to the curves, in whole hours. Days on the same clock keep the full 24 hours.
+        let hours = all.map(\.hour)
+        let isClockDay = alignment == .timeOfDay && period == .days
+        let lower = isClockDay ? 0 : alignment == .timeOfDay ? (hours.min() ?? 0).rounded(.down) : 0
+        let upper = isClockDay ? 24 : max(lower + 1, (hours.max() ?? 24).rounded(.up))
+        let span = upper - lower
+        let step = span <= 4 ? 1.0 : span <= 12 ? 3 : span <= 30 ? 6 : span <= 60 ? 12 : 24
         return Chart(all) { point in
             LineMark(x: .value("Hour", point.hour), y: .value("Level", point.level),
                      series: .value("Series", "\(point.day)-\(point.segment)"))
@@ -175,10 +179,10 @@ struct CompareView: View {
         }
         .chartForegroundStyleScale([labelA: Self.firstColor, labelB: Self.secondColor])
         .chartLegend(position: .top, alignment: .leading)
-        .chartXScale(domain: 0...upper)
+        .chartXScale(domain: lower...upper)
         .chartYScale(domain: 0...100)
         .chartXAxis {
-            AxisMarks(values: Array(stride(from: 0, through: upper, by: step))) { value in
+            AxisMarks(values: Array(stride(from: (lower / step).rounded(.up) * step, through: upper, by: step))) { value in
                 AxisGridLine()
                 AxisValueLabel {
                     let hour = value.as(Double.self) ?? 0
