@@ -31,7 +31,18 @@ struct ContentView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("How to Capture", systemImage: "questionmark.circle") { isShowingHelp = true }
+                    Menu {
+                        Section {
+                            Button("How to Capture", systemImage: "questionmark.circle") { isShowingHelp = true }
+                        }
+                        Section {
+                            Link(destination: URL(string: "https://github.com/katagaki/PowerView")!) {
+                                Label("Source Code", systemImage: "chevron.left.forwardslash.chevron.right")
+                            }
+                        }
+                    } label: {
+                        Label("More", systemImage: "ellipsis")
+                    }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Import", systemImage: "plus") { isPickingFile = true }
