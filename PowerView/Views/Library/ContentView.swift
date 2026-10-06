@@ -33,6 +33,7 @@ struct ContentView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("How to Capture", systemImage: "questionmark.circle") { isShowingHelp = true }
                 }
+                ToolbarSpacer(.fixed, placement: .topBarLeading)
                 ToolbarItem(placement: .topBarLeading) {
                     Menu {
                         Section {
