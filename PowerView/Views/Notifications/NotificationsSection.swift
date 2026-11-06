@@ -13,7 +13,7 @@ struct NotificationsSection: View {
             Section {
                 if let apps = day.notifications {
                     let top = Array(apps.prefix(6))
-                    Text("\(apps.reduce(0) { $0 + $1.count }) notifications · \(apps.reduce(0) { $0 + $1.wokePhone }) woke the phone")
+                    Text("\(Format.count(apps.reduce(0) { $0 + $1.count }, "notification")) · \(apps.reduce(0) { $0 + $1.wokePhone }) woke the phone")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .padding(.top, 4)
@@ -53,7 +53,7 @@ struct NotificationsSection: View {
                         }
                     } label: {
                         LabeledContent("Wakes from Sleep") {
-                            Text("\(wakes.total) · \(wakes.total / day.axis.hours) per hour")
+                            Text("\(wakes.total) · \(Format.decimal(Double(wakes.total) / Double(max(1, day.axis.hours)))) per hour")
                                 .monospacedDigit()
                         }
                     }

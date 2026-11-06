@@ -212,7 +212,7 @@ struct CompareView: View {
 
     private var metrics: [Metric] {
         func rate(_ value: Double) -> String { String(format: "%.1f%%/h", value) }
-        func hours(_ value: Double) -> String { String(format: "%.1f h", value) }
+        func hours(_ value: Double) -> String { Format.hours(value) }
         let drainA = dayA.drain, drainB = dayB.drain
         let peakA = dayA.temperature?.bins.map(\.maximum).max(), peakB = dayB.temperature?.bins.map(\.maximum).max()
         func averageNits(_ day: DayReport) -> Double? {

@@ -7,8 +7,22 @@ nonisolated enum Format {
         return String(format: "%02d:%02d", (minutes / 60) % 24, minutes % 60)
     }
 
+    /// One decimal place, e.g. 3.14 → "3.1".
+    static func decimal(_ value: Double) -> String {
+        String(format: "%.1f", value)
+    }
+
+    static func hours(_ hours: Double) -> String {
+        "\(decimal(hours)) h"
+    }
+
     static func hours(fromSeconds seconds: Double) -> String {
-        String(format: "%.1f h", seconds / 3600)
+        hours(seconds / 3600)
+    }
+
+    /// A count with its noun, e.g. "1 crash" or "2 crashes".
+    static func count(_ count: Int, _ singular: String, plural: String? = nil) -> String {
+        "\(count.formatted()) \(count == 1 ? singular : plural ?? singular + "s")"
     }
 
     static func minutes(fromSeconds seconds: Double) -> String {

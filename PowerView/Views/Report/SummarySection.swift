@@ -14,22 +14,20 @@ struct SummarySection: View {
                            value: "\(Int(stats.used.rounded()))", unit: "%",
                            detail: stats.lowest.map { "Lowest \($0)%" })
                 MetricTile(title: "On Battery", systemImage: "powerplug.portrait", tint: .green,
-                           value: String(format: "%.1f", stats.hoursOnBattery), unit: "h",
+                           value: Format.decimal(stats.hoursOnBattery), unit: "h",
                            detail: stats.charged > 3 ? "Charged +\(Int(stats.charged.rounded()))%" : "No charging")
                 MetricTile(title: "Screen On", systemImage: "iphone.gen3", tint: .indigo,
-                           value: screen.map { String(format: "%.1f", $0 / 3600) } ?? "—", unit: screen == nil ? "" : "h",
+                           value: screen.map { Format.decimal($0 / 3600) }, unit: "h",
                            detail: alwaysOnDetail)
                 MetricTile(title: "Energy Used", systemImage: "bolt.fill", tint: .orange,
-                           value: day.energyWh.map { String(format: "%.1f", $0) } ?? "—", unit: day.energyWh == nil ? "" : "Wh",
+                           value: day.energyWh.map(Format.decimal), unit: "Wh",
                            detail: day.backgroundShare.map { "\(Int(($0 * 100).rounded()))% with display off" })
                 if let drain {
                     MetricTile(title: "Standby Drain", systemImage: "moon.fill", tint: .purple,
-                               value: drain.screenOffPerHour.map { String(format: "%.1f", $0) } ?? "—",
-                               unit: drain.screenOffPerHour == nil ? "" : "%/h",
+                               value: drain.screenOffPerHour.map(Format.decimal), unit: "%/h",
                                detail: String(format: "Screen off · %.1f h", drain.screenOffHours))
                     MetricTile(title: "In-Use Drain", systemImage: "sun.max.fill", tint: .yellow,
-                               value: drain.screenOnPerHour.map { String(format: "%.1f", $0) } ?? "—",
-                               unit: drain.screenOnPerHour == nil ? "" : "%/h",
+                               value: drain.screenOnPerHour.map(Format.decimal), unit: "%/h",
                                detail: String(format: "Screen on · %.1f h", drain.screenOnHours))
                 }
             }

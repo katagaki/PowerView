@@ -79,11 +79,11 @@ struct ChargingView: View {
         return Section {
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
                 tile("Sessions", "bolt.fill", .green, "\(sessions.count)", "", "\(topUps) under 30 min")
-                tile("Plugged In", "powerplug.portrait.fill", .green, String(format: "%.1f", totalHours / Double(days)), "h/day",
+                tile("Plugged In", "powerplug.portrait.fill", .green, Format.decimal(totalHours / Double(days)), "h/day",
                      String(format: "%.0f h in total", totalHours))
                 tile("Typical Range", "battery.75percent", .blue,
                      "\(average(startLevels))→\(average(endLevels))", "%", "Average start and end level")
-                tile("Held at 100%", "battery.100percent", .orange, String(format: "%.1f", fullHours), "h",
+                tile("Held at 100%", "battery.100percent", .orange, Format.decimal(fullHours), "h",
                      totalHours > 0 ? "\(Int((fullHours / totalHours * 100).rounded()))% of plugged-in time" : nil)
                 tile("Overnight", "moon.zzz.fill", .indigo, "\(overnight.count)", "", "Sessions of 3 h or more starting at night")
                 tile("Fastest Charger", "bolt.badge.clock.fill", .yellow, maxWatts.map(String.init) ?? "—", maxWatts == nil ? "" : "W",

@@ -60,7 +60,7 @@ struct AppListView: View {
                     .padding(.vertical, 2)
                 }
             } footer: {
-                Text("Blue is energy used while the display was on, orange while it was off. Percentages assume \(String(format: "%.1f", whPerPercent * 100)) Wh per full charge.")
+                Text("Blue is energy used while the display was on, orange while it was off. Percentages assume \(Format.decimal(whPerPercent * 100)) Wh per full charge.")
             }
         }
         .navigationTitle("Apps & Processes")

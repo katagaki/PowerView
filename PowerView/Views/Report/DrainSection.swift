@@ -39,6 +39,6 @@ struct DrainSection: View {
     }
 
     static func duration(_ hours: Double) -> String {
-        hours >= 10 ? "\(Int(hours.rounded())) h" : String(format: "%.1f h", hours)
+        hours >= 10 ? "\(Int(hours.rounded())) h" : Format.hours(hours)
     }
 }

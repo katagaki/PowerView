@@ -108,7 +108,7 @@ struct NetworkSection: View {
                     row("Wi-Fi Data", data.map { $0.wifiMB >= 1000 ? Format.megabytes($0.wifiMB) : String(format: "%.1f MB", $0.wifiMB) } ?? "0 MB")
                     row("Cellular Data", String(format: "%.2f MB", data?.cellularMB ?? 0))
                     row("Cellular", (technology(at: start + 0.125) ?? "—") + (changes > 0 ? " · \(changes) changes" : ""))
-                    row("Signal Bars", bars.map { String(format: "%.1f", $0.bars) } ?? "—")
+                    row("Signal Bars", bars.map { Format.decimal($0.bars) } ?? "—")
                 }
             }
         }

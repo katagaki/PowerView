@@ -127,7 +127,7 @@ struct ReportView: View {
                     } label: {
                         Label {
                             Text("Charging Habits")
-                            Text("\(sessions.count) sessions")
+                            Text(Format.count(sessions.count, "session"))
                         } icon: {
                             Image(systemName: "bolt.fill").foregroundStyle(.green)
                         }
@@ -233,13 +233,13 @@ struct ReportView: View {
     private func stabilitySummary(_ events: [StabilityEvent]) -> String {
         let crashes = events.filter { $0.kind == .crash }.count
         let kills = events.filter { $0.kind == .memoryKill }.count
-        return events.isEmpty ? "No reports" : "\(crashes) crashes · \(kills) closed for memory · \(events.count) reports"
+        return events.isEmpty ? "No reports" : "\(Format.count(crashes, "crash", plural: "crashes")) · \(kills) closed for memory · \(Format.count(events.count, "report"))"
     }
 
     private var batteryFooter: String {
         var parts: [String] = []
         if let stretch = day.stretch {
-            let length = String(format: "%.1f h", stretch.end - stretch.start)
+            let length = Format.hours(stretch.end - stretch.start)
             parts.append(stretch.pluggedIn == nil
                          ? "Unplugged at \(day.axis.clock(stretch.start)) and still on battery when captured, \(length) later."
                          : "Unplugged at \(day.axis.clock(stretch.start)) until plugged in at \(day.axis.clock(stretch.end)), \(length) later.")
@@ -253,6 +253,6 @@ struct ReportView: View {
 
     private var sourceNote: String {
         let captured = report.meta.captured.formatted(.dateTime.year().month().day().hour().minute().timeZone(.localizedGMT(.short)).locale(.current))
-        return "From the power log in \(report.sourceName), captured \(captured). Energy figures are the system's own per-component estimates. Percentages assume \(String(format: "%.1f", whPerPercent * 100)) Wh per full charge."
+        return "From the power log in \(report.sourceName), captured \(captured). Energy figures are the system's own per-component estimates. Percentages assume \(Format.decimal(whPerPercent * 100)) Wh per full charge."
     }
 }
