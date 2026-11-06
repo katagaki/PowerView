@@ -60,8 +60,6 @@ struct NotificationsSection: View {
                 }
             } header: {
                 Text("Notifications & Wakes")
-            } footer: {
-                Text("Frequent wakes with the screen off drain the battery even when you're not using the phone.")
             }
         }
     }

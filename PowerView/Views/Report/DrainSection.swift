@@ -30,10 +30,6 @@ struct DrainSection: View {
             }
         } header: {
             Text("Full Charge Would Last")
-        } footer: {
-            Text(drain.isExact
-                 ? "From 100% to 0%, based on this day's drain with the screen on and off."
-                 : "From 100% to 0%. Approximate, because only hourly screen time was kept for this day.")
         }
         .monospacedDigit()
     }

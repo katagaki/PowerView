@@ -91,8 +91,6 @@ nonisolated struct DrainBreakdown: Sendable {
     var overallPerHour: Double
     var screenOnHours: Double
     var screenOffHours: Double
-    /// True when based on exact screen events; false when estimated from hourly screen time.
-    var isExact: Bool
 
     var screenShare: Double { screenOnHours / max(0.01, screenOnHours + screenOffHours) }
     var fullChargeHours: Double { 100 / overallPerHour }
@@ -119,10 +117,8 @@ nonisolated extension DayReport {
     var drain: DrainBreakdown? {
         struct Slice { var drop: Double; var on: Double; var off: Double }
         var slices: [Slice] = []
-        var isExact = false
 
         if let detail {
-            isExact = true
             for (previous, sample) in zip(battery, battery.dropFirst()) {
                 let elapsed = sample.hour - previous.hour
                 guard !previous.charging, !sample.charging, elapsed > 0, elapsed < 0.5 else { continue }
@@ -156,6 +152,6 @@ nonisolated extension DayReport {
             (onRate, offRate) = fit
         }
         return DrainBreakdown(screenOffPerHour: offRate, screenOnPerHour: onRate, overallPerHour: drop / (on + off),
-                              screenOnHours: on, screenOffHours: off, isExact: isExact)
+                              screenOnHours: on, screenOffHours: off)
     }
 }

@@ -82,8 +82,6 @@ struct ScreenSection: View {
                 }
             } header: {
                 Text("Screen")
-            } footer: {
-                Text("Brightness is the screen's actual output in nits; higher brightness is one of the biggest causes of screen-on drain.")
             }
         }
     }

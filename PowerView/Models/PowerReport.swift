@@ -56,15 +56,6 @@ nonisolated enum DetailTier: String, Codable, Sendable {
         case .battery: "Battery Only"
         }
     }
-
-    var explanation: String {
-        switch self {
-        case .detailed: "Hourly records plus second-by-second screen on/off, 5G/4G changes and data use."
-        case .hourly: "Hourly records are available. Second-by-second network and screen events weren't kept this far back."
-        case .daily: "Only daily totals were kept for this day, covering 08:00 to 08:00 the next morning, trimmed to the biggest consumers."
-        case .battery: "Only the battery level was kept for this day."
-        }
-    }
 }
 
 nonisolated struct DayReport: Codable, Identifiable, Sendable {

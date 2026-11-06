@@ -75,8 +75,6 @@ struct NetworkSection: View {
             }
         } header: {
             Text("Network")
-        } footer: {
-            Text("5G/4G changes are exact; data and signal are in 15-minute bins.")
         }
     }
 
