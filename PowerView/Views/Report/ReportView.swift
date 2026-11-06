@@ -74,7 +74,7 @@ struct ReportView: View {
         .navigationTitle(day.title)
         .navigationSubtitle(report.meta.deviceName)
         .navigationBarTitleDisplayMode(.inline)
-        .safeAreaInset(edge: .top, spacing: 0) {
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             DayStrip(days: reports, selection: selection)
                 // A fresh strip per period, so it scrolls to that period's selection.
                 .id(period)
