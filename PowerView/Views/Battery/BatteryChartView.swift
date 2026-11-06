@@ -46,10 +46,23 @@ struct BatteryChartView: View {
             Text("No battery samples for this day.")
                 .foregroundStyle(.secondary)
         } else {
-            chart
-                .frame(height: 240)
-                .padding(.vertical, 8)
+            VStack(alignment: .leading, spacing: 10) {
+                chart
+                    .frame(height: 240)
+                if !legendItems.isEmpty {
+                    FlowLegend(items: legendItems)
+                }
+            }
+            .padding(.vertical, 8)
         }
+    }
+
+    private var legendItems: [(String, Color)] {
+        var items: [(String, Color)] = []
+        if !chargingBands.isEmpty { items.append(("Charging", Color.green.opacity(0.3))) }
+        if hasScreenBar { items.append(("Screen On", .indigo)) }
+        if day.events?.isEmpty == false { items.append(("Setting Change", .secondary)) }
+        return items
     }
 
     private var chart: some View {

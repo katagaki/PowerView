@@ -22,8 +22,6 @@ struct HighlightsSection: View {
                 }
             } header: {
                 Text("Highlights")
-            } footer: {
-                Text("Ranked by how much battery each cost. Lines that are typical for your other days are left out unless they cost a lot.")
             }
         }
     }

@@ -76,7 +76,7 @@ struct NetworkSection: View {
         } header: {
             Text("Network")
         } footer: {
-            Text("Touch and hold a lane to inspect 15 minutes. 5G/4G changes are exact; data and signal are in 15-minute bins.")
+            Text("5G/4G changes are exact; data and signal are in 15-minute bins.")
         }
     }
 
