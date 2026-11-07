@@ -1256,28 +1256,6 @@
         }
       }
     },
-    "5G/4G changes are exact; data and signal are in 15-minute bins." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "5G/4Gの切り替えは正確な時刻です。データと電波は15分単位です。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "5G/4G切换为精确时间；数据和信号以15分钟为单位。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "5G/4G切換為精確時間；資料和訊號以15分鐘為單位。"
-          }
-        }
-      }
-    },
     "A sysdiagnose contains personal data. PowerView reads only the power log and processes it on this device." : {
       "localizations" : {
         "ja" : {
@@ -2221,28 +2199,6 @@
         }
       }
     },
-    "Brightness is the screen's actual output in nits; higher brightness is one of the biggest causes of screen-on drain." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "明るさは画面の実際の出力（ニト）です。明るさが高いことは、画面オン時の消費が増える大きな原因のひとつです。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "亮度是屏幕的实际输出，单位为尼特；较高的亮度是屏幕打开时耗电的最大原因之一。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "亮度是螢幕的實際輸出，單位為尼特；較高的亮度是螢幕開啟時耗電的最大原因之一。"
-          }
-        }
-      }
-    },
     "Calendar" : {
       "comment" : "The Calendar app.",
       "localizations" : {
@@ -2913,28 +2869,6 @@
         }
       }
     },
-    "Covers 08:00 to 08:00 the next day." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "8:00から翌日8:00までが対象です。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "范围为08:00至次日08:00。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "範圍為08:00至隔天08:00。"
-          }
-        }
-      }
-    },
     "Crash" : {
       "comment" : "A kind of diagnostic report: an app crashed.",
       "localizations" : {
@@ -3519,72 +3453,6 @@
         }
       }
     },
-    "Frequent wakes with the screen off drain the battery even when you're not using the phone." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "画面オフのまま頻繁にスリープが解除されると、iPhoneを使っていなくてもバッテリーを消費します。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "屏幕关闭时频繁唤醒，即使不使用手机也会消耗电量。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "螢幕關閉時頻繁喚醒，即使沒有使用手機也會消耗電量。"
-          }
-        }
-      }
-    },
-    "From 100% to 0%, based on this day's drain with the screen on and off." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "100%から0%までの時間です。この日の画面オン時とオフ時の消費に基づいています。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "从100%到0%，基于这一天屏幕打开和关闭时的耗电情况。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "從100%到0%，根據這一天螢幕開啟和關閉時的耗電情況計算。"
-          }
-        }
-      }
-    },
-    "From 100% to 0%. Approximate, because only hourly screen time was kept for this day." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "100%から0%までの時間です。この日は1時間ごとの画面オン時間のみが保持されているため、概算です。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "从100%到0%。由于这一天仅保留了每小时的屏幕打开时长，结果为估算值。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "從100%到0%。由於這一天僅保留每小時的螢幕開啟時間，結果為估計值。"
-          }
-        }
-      }
-    },
     "From backlight events" : {
       "comment" : "Where the screen-on time came from. Shown in a small tile, so keep it short.",
       "localizations" : {
@@ -4052,50 +3920,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "每小時"
-          }
-        }
-      }
-    },
-    "Hourly records are available. Second-by-second network and screen events weren't kept this far back." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1時間ごとの記録があります。この時期の秒単位のネットワークおよび画面のイベントは保持されていません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "提供每小时记录。这么久之前的精确到秒的网络和屏幕事件未被保留。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "提供每小時記錄。這麼久以前精確到秒的網路和螢幕事件並未保留。"
-          }
-        }
-      }
-    },
-    "Hourly records plus second-by-second screen on/off, 5G/4G changes and data use." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1時間ごとの記録に加え、画面のオン/オフ、5G/4Gの切り替え、データ使用量を秒単位で記録しています。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "包含每小时记录，以及精确到秒的屏幕开关、5G/4G切换和数据用量。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "包含每小時記錄，以及精確到秒的螢幕開關、5G/4G切換和資料用量。"
           }
         }
       }
@@ -5111,28 +4935,6 @@
         }
       }
     },
-    "Only daily totals were kept for this day, covering 08:00 to 08:00 the next morning, trimmed to the biggest consumers." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "この日は1日の合計のみが保持されています。範囲は8:00から翌朝8:00までで、消費の大きい項目だけが含まれます。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "这一天仅保留了每日总计，范围为08:00至次日08:00，且只包含耗电最多的项目。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "這一天僅保留每日總計，範圍為08:00至隔天08:00，且只包含耗電最多的項目。"
-          }
-        }
-      }
-    },
     "Only readings taken around charging were kept for this day." : {
       "localizations" : {
         "ja" : {
@@ -5151,28 +4953,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "這一天僅保留充電前後的讀數。"
-          }
-        }
-      }
-    },
-    "Only the battery level was kept for this day." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "この日はバッテリー残量のみが保持されています。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "这一天仅保留了电池电量。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "這一天僅保留電池電量。"
           }
         }
       }
@@ -6974,50 +6754,6 @@
         }
       }
     },
-    "Touch and hold any lane on this page, then drag to inspect it. Shaded hours were mostly plugged in." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このページのレーンを長押ししてからドラッグすると、詳細を確認できます。網掛けの時間帯はほぼ電源に接続されていました。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "按住此页面上的任意条带并拖移即可查看详情。带阴影的时段大部分时间接入了电源。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "按住此頁面上的任一列並拖移即可查看詳情。有陰影的時段大多接上電源。"
-          }
-        }
-      }
-    },
-    "Touch and hold any lane on this page, then drag to inspect it. Shaded hours were mostly plugged in. Hourly records cover whole hours, so the first and last hours can include time on the charger." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このページのレーンを長押ししてからドラッグすると、詳細を確認できます。網掛けの時間帯はほぼ電源に接続されていました。1時間ごとの記録は1時間単位のため、最初と最後の時間帯には充電中の時間が含まれる場合があります。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "按住此页面上的任意条带并拖移即可查看详情。带阴影的时段大部分时间接入了电源。每小时记录以整小时为单位，因此第一个和最后一个小时可能包含充电时间。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "按住此頁面上的任一列並拖移即可查看詳情。有陰影的時段大多接上電源。每小時記錄以整個小時為單位，因此第一個和最後一個小時可能包含充電時間。"
-          }
-        }
-      }
-    },
     "Touch, Button or Raise" : {
       "comment" : "Why the phone woke from sleep.",
       "localizations" : {
@@ -7201,62 +6937,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@%2$@拔除電源"
-          }
-        }
-      }
-    },
-    "Unplugged at %@ and still on battery when captured, %@ later." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Unplugged at %1$@ and still on battery when captured, %2$@ later."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@に電源を外し、%2$@後の取得時もバッテリー駆動のままでした。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@拔下电源，%2$@后采集时仍在使用电池供电。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@拔除電源，%2$@後擷取時仍由電池供電。"
-          }
-        }
-      }
-    },
-    "Unplugged at %@ until plugged in at %@, %@ later." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Unplugged at %1$@ until plugged in at %2$@, %3$@ later."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@に電源を外し、%3$@後の%2$@に電源に接続しました。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@拔下电源，%3$@后于%2$@接入电源。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@拔除電源，%3$@後於%2$@接上電源。"
           }
         }
       }
@@ -8196,28 +7876,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%/小時"
-          }
-        }
-      }
-    },
-    "“On screen” is energy the system tags as display-on, which includes the Always-On Display." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“画面上”は、システムが画面オンと記録したエネルギーで、常に画面オンも含まれます。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“屏幕活跃”是系统标记为屏幕打开时的能耗，包括全天候显示屏。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「在螢幕上」是系統標記為螢幕開啟時的能源用量，包含永遠顯示。"
           }
         }
       }
