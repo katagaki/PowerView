@@ -252,7 +252,7 @@ struct CompareView: View {
         Section {
             Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 10) {
                 GridRow {
-                    Text("")
+                    Text(verbatim: "")
                     Text(labelA).foregroundStyle(Self.firstColor).gridColumnAlignment(.trailing)
                     Text(labelB).foregroundStyle(Self.secondColor).gridColumnAlignment(.trailing)
                 }
