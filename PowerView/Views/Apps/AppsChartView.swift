@@ -14,10 +14,10 @@ struct AppsChartView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Chart(top) { app in
-                BarMark(x: .value("Energy", Double(app.screen) / 1000), y: .value("App", app.displayName))
-                    .foregroundStyle(by: .value("Kind", onScreenLabel))
-                BarMark(x: .value("Energy", Double(app.background) / 1000), y: .value("App", app.displayName))
-                    .foregroundStyle(by: .value("Kind", backgroundLabel))
+                BarMark(x: .value(ChartLabel.energy, Double(app.screen) / 1000), y: .value(ChartLabel.app, app.displayName))
+                    .foregroundStyle(by: .value(ChartLabel.kind, onScreenLabel))
+                BarMark(x: .value(ChartLabel.energy, Double(app.background) / 1000), y: .value(ChartLabel.app, app.displayName))
+                    .foregroundStyle(by: .value(ChartLabel.kind, backgroundLabel))
                     .annotation(position: .trailing, spacing: 4) {
                         Text(Format.decimal(Double(app.total) / 1000, digits: 2))
                             .font(.caption2.weight(.semibold))

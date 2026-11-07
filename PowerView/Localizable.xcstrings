@@ -1683,6 +1683,7 @@
       }
     },
     "App" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -2176,6 +2177,7 @@
       }
     },
     "Bottom" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -2398,6 +2400,7 @@
       }
     },
     "Category" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -2778,6 +2781,7 @@
       }
     },
     "Component" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -3023,6 +3027,7 @@
       }
     },
     "Day" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -3223,6 +3228,7 @@
       }
     },
     "End" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -3245,6 +3251,7 @@
       }
     },
     "Energy" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -3311,6 +3318,7 @@
       }
     },
     "Event" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -3489,6 +3497,7 @@
       }
     },
     "Floor" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -3980,6 +3989,7 @@
       }
     },
     "Hour" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -4245,6 +4255,7 @@
       }
     },
     "Kind" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -4289,6 +4300,7 @@
       }
     },
     "Level" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -4333,6 +4345,7 @@
       }
     },
     "Low" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -4944,6 +4957,7 @@
       }
     },
     "Notifications" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -5929,6 +5943,7 @@
       }
     },
     "Segment" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -5951,6 +5966,7 @@
       }
     },
     "Selected" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -5973,6 +5989,7 @@
       }
     },
     "Series" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -5995,6 +6012,7 @@
       }
     },
     "Sessions" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -6444,6 +6462,7 @@
       }
     },
     "Start" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -6466,6 +6485,7 @@
       }
     },
     "Starting Level" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -6601,6 +6621,7 @@
       }
     },
     "Temperature" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -6843,6 +6864,7 @@
       }
     },
     "Top" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -7312,6 +7334,7 @@
       }
     },
     "Value" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -7401,6 +7424,7 @@
       }
     },
     "Warm" : {
+      "comment" : "A kind of value in a chart, read out by VoiceOver.",
       "localizations" : {
         "ja" : {
           "stringUnit" : {

@@ -94,8 +94,8 @@ struct HourlyLanesView: View {
                 if cellular + wifi > 0 {
                     let cellularShare = cellular / (cellular + wifi)
                     LaneBar(start: Double(hour) + 0.08, end: Double(hour) + 0.92, value: cellularShare, style: Color.green)
-                    RectangleMark(xStart: .value("Start", Double(hour) + 0.08), xEnd: .value("End", Double(hour) + 0.92),
-                                  yStart: .value("Bottom", cellularShare), yEnd: .value("Top", 1))
+                    RectangleMark(xStart: .value(ChartLabel.start, Double(hour) + 0.08), xEnd: .value(ChartLabel.end, Double(hour) + 0.92),
+                                  yStart: .value(ChartLabel.bottom, cellularShare), yEnd: .value(ChartLabel.top, 1))
                         .foregroundStyle(Color.blue)
                 }
             }

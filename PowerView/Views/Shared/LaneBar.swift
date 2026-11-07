@@ -16,8 +16,8 @@ struct LaneBar: ChartContent {
     }
 
     var body: some ChartContent {
-        RectangleMark(xStart: .value("Start", start), xEnd: .value("End", end),
-                      yStart: .value("Bottom", 0), yEnd: .value("Value", value))
+        RectangleMark(xStart: .value(ChartLabel.start, start), xEnd: .value(ChartLabel.end, end),
+                      yStart: .value(ChartLabel.bottom, 0), yEnd: .value(ChartLabel.value, value))
             .foregroundStyle(style)
     }
 }

@@ -179,9 +179,9 @@ struct CompareView: View {
         let span = upper - lower
         let step = span <= 4 ? 1.0 : span <= 12 ? 3 : span <= 30 ? 6 : span <= 60 ? 12 : 24
         return Chart(all) { point in
-            LineMark(x: .value("Hour", point.hour), y: .value("Level", point.level),
-                     series: .value("Series", "\(point.day)-\(point.segment)"))
-                .foregroundStyle(by: .value("Day", point.day))
+            LineMark(x: .value(ChartLabel.hour, point.hour), y: .value(ChartLabel.level, point.level),
+                     series: .value(ChartLabel.series, "\(point.day)-\(point.segment)"))
+                .foregroundStyle(by: .value(ChartLabel.day, point.day))
                 .lineStyle(StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
         }
         .chartForegroundStyleScale([labelA: Self.firstColor, labelB: Self.secondColor])
@@ -337,9 +337,9 @@ struct CompareView: View {
 
     private func groupedChart(_ bars: [Bar], unit: String, categories: [String]) -> some View {
         Chart(bars) { bar in
-            BarMark(x: .value("Energy", bar.value), y: .value("Category", bar.category))
-                .foregroundStyle(by: .value("Day", bar.day))
-                .position(by: .value("Day", bar.day))
+            BarMark(x: .value(ChartLabel.energy, bar.value), y: .value(ChartLabel.category, bar.category))
+                .foregroundStyle(by: .value(ChartLabel.day, bar.day))
+                .position(by: .value(ChartLabel.day, bar.day))
                 .cornerRadius(3)
         }
         .chartForegroundStyleScale([labelA: Self.firstColor, labelB: Self.secondColor])

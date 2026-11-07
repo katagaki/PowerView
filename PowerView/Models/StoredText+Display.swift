@@ -68,7 +68,7 @@ nonisolated extension StabilityEvent {
         case "Accessory Accessory": String(localized: "Accessory", comment: "An accessory of an unknown type.")
         case let name where name.hasSuffix(" Accessory"):
             String(localized: "\(String(name.dropLast(" Accessory".count))) Accessory", comment: "The type of accessory, as named by the system, e.g. Headphones Accessory.")
-        default: process
+        default: ProcessNames.displayName(stored: process)
         }
     }
 

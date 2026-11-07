@@ -249,7 +249,7 @@ struct ChargingView: View {
         }
         return Section {
             Chart(buckets.indices, id: \.self) { index in
-                BarMark(x: .value("Starting Level", buckets[index]), y: .value("Sessions", counts[index]))
+                BarMark(x: .value(ChartLabel.startingLevel, buckets[index]), y: .value(ChartLabel.sessions, counts[index]))
                     .foregroundStyle(Color.green.gradient)
                     .cornerRadius(4)
                     .annotation(position: .top) {

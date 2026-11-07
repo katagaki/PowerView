@@ -19,10 +19,10 @@ struct NotificationsSection: View {
                         .padding(.top, 4)
                         .listRowSeparator(.hidden)
                     Chart(top) { app in
-                        BarMark(x: .value("Notifications", app.wokePhone), y: .value("App", app.displayName))
-                            .foregroundStyle(by: .value("Kind", wokeLabel))
-                        BarMark(x: .value("Notifications", max(0, app.count - app.wokePhone)), y: .value("App", app.displayName))
-                            .foregroundStyle(by: .value("Kind", quietLabel))
+                        BarMark(x: .value(ChartLabel.notifications, app.wokePhone), y: .value(ChartLabel.app, app.displayName))
+                            .foregroundStyle(by: .value(ChartLabel.kind, wokeLabel))
+                        BarMark(x: .value(ChartLabel.notifications, max(0, app.count - app.wokePhone)), y: .value(ChartLabel.app, app.displayName))
+                            .foregroundStyle(by: .value(ChartLabel.kind, quietLabel))
                             .annotation(position: .trailing, spacing: 4) {
                                 Text("\(app.count)")
                                     .font(.caption2.weight(.semibold))
