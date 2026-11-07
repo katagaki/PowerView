@@ -117,6 +117,8 @@ struct BatteryChartView: View {
             AreaMark(x: .value(ChartLabel.hour, point.sample.hour), yStart: .value(ChartLabel.floor, 0), yEnd: .value(ChartLabel.level, point.sample.level),
                      series: .value(ChartLabel.segment, point.segment))
                 .foregroundStyle(fill)
+                // The line below reads out the same values, without Swift Charts' untranslated "to" between range ends.
+                .accessibilityHidden(true)
             LineMark(x: .value(ChartLabel.hour, point.sample.hour), y: .value(ChartLabel.level, point.sample.level),
                      series: .value(ChartLabel.segment, point.segment))
                 .foregroundStyle(Color.green)

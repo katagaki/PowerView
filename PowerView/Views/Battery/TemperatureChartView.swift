@@ -56,6 +56,8 @@ struct TemperatureChartView: View {
                     } else {
                         AreaMark(x: .value(ChartLabel.hour, hour), yStart: .value(ChartLabel.low, domain.lowerBound), yEnd: .value(ChartLabel.temperature, bin.average))
                             .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.3), .orange.opacity(0.02)], startPoint: .top, endPoint: .bottom))
+                            // The line below reads out the same values, without Swift Charts' untranslated "to" between range ends.
+                            .accessibilityHidden(true)
                         LineMark(x: .value(ChartLabel.hour, hour), y: .value(ChartLabel.temperature, bin.average))
                             .foregroundStyle(Color.orange)
                             .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
