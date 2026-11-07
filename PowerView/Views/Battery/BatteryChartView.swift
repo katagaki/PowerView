@@ -59,9 +59,9 @@ struct BatteryChartView: View {
 
     private var legendItems: [(String, Color)] {
         var items: [(String, Color)] = []
-        if !chargingBands.isEmpty { items.append(("Charging", Color.green.opacity(0.3))) }
-        if hasScreenBar { items.append(("Screen On", .indigo)) }
-        if day.events?.isEmpty == false { items.append(("Setting Change", .secondary)) }
+        if !chargingBands.isEmpty { items.append((String(localized: "Charging"), Color.green.opacity(0.3))) }
+        if hasScreenBar { items.append((String(localized: "Screen On"), .indigo)) }
+        if day.events?.isEmpty == false { items.append((String(localized: "Setting Change"), .secondary)) }
         return items
     }
 

@@ -7,7 +7,7 @@ struct SettingChangesSection: View {
         if let events = day.events {
             Section("Setting Changes") {
                 ForEach(events) { event in
-                    LabeledContent(event.text, value: day.axis.clock(event.hour))
+                    LabeledContent(event.displayText, value: day.axis.clock(event.hour))
                         .monospacedDigit()
                 }
             }

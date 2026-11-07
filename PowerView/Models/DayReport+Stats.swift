@@ -77,7 +77,9 @@ nonisolated extension HourlyLanes {
         let cellular = keepAliveCellular[hour], wifi = keepAliveWiFi[hour], total = cellular + wifi
         guard total > 0 else { return "—" }
         let share = Double(wifi) / Double(total)
-        return share >= 0.6 ? "Mostly Wi-Fi" : share > 0.15 ? "Mixed" : "Cellular"
+        if share >= 0.6 { return String(localized: "Mostly Wi-Fi", comment: "Which network an hour's push connection mostly used.") }
+        if share > 0.15 { return String(localized: "Mixed", comment: "An hour's push connection used both Wi-Fi and cellular.") }
+        return String(localized: "Cellular", comment: "Cellular network.")
     }
 }
 

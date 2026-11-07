@@ -33,11 +33,11 @@ class ShareViewController: UIViewController {
     private func copySharedFile() async {
         let providers = (extensionContext?.inputItems as? [NSExtensionItem] ?? []).flatMap { $0.attachments ?? [] }
         guard let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.data.identifier) }) else {
-            status.state = .failed("There's no file to import.")
+            status.state = .failed(String(localized: "There's no file to import."))
             return
         }
         guard let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Self.appGroup) else {
-            status.state = .failed("PowerView's shared storage isn't available.")
+            status.state = .failed(String(localized: "PowerView's shared storage isn't available."))
             return
         }
         let inbox = container.appending(path: "Inbox", directoryHint: .isDirectory)

@@ -31,7 +31,7 @@ struct StabilityView: View {
                 Text("Heavy CPU use and disk writes are reported when an app works far harder than iOS expects in the background, and usually cost battery. Memory limit warnings are common and often harmless.")
             }
 
-            let byProcess = Dictionary(grouping: filtered, by: \.process).map { ($0.key, $0.value.count) }.sorted { $0.1 > $1.1 }
+            let byProcess = Dictionary(grouping: filtered, by: \.displayProcess).map { ($0.key, $0.value.count) }.sorted { $0.1 > $1.1 }
             if byProcess.count > 1 {
                 Section("Most Reports") {
                     ForEach(byProcess.prefix(5), id: \.0) { name, count in

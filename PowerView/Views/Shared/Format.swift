@@ -1,40 +1,76 @@
 import Foundation
 
 nonisolated enum Format {
-    /// `hour` is hours since midnight, e.g. 13.5 → "13:30".
+    /// `hour` is hours since midnight, e.g. 13.5 → "13:30". Always 24-hour, whatever the locale prefers,
+    /// so chart axes and the times in the text around them match.
     static func clock(_ hour: Double) -> String {
         let minutes = Int((hour * 60).rounded())
         return String(format: "%02d:%02d", (minutes / 60) % 24, minutes % 60)
     }
 
-    /// One decimal place, e.g. 3.14 → "3.1".
-    static func decimal(_ value: Double) -> String {
-        String(format: "%.1f", value)
+    /// One decimal place by default, e.g. 3.14 → "3.1", with the locale's decimal separator.
+    static func decimal(_ value: Double, digits: Int = 1) -> String {
+        value.formatted(.number.precision(.fractionLength(digits)).grouping(.never))
+    }
+
+    /// The unit shown beside a number of hours, when the two are styled separately.
+    static var hoursUnit: String {
+        String(localized: "h", comment: "Short unit for hours, shown after a number in a large metric tile.")
+    }
+
+    /// The unit shown beside a drain rate, when the two are styled separately.
+    static var percentPerHourUnit: String {
+        String(localized: "unit.percentPerHour", defaultValue: "%/h",
+               comment: "Short unit for battery percent per hour, shown after a number in a large metric tile.")
     }
 
     static func hours(_ hours: Double) -> String {
-        "\(decimal(hours)) h"
+        String(localized: "\(decimal(hours)) h", comment: "A length of time in hours, e.g. 3.1 h.")
+    }
+
+    static func hours(whole hours: Int) -> String {
+        String(localized: "\(hours) h", comment: "A whole number of hours, e.g. 12 h.")
     }
 
     static func hours(fromSeconds seconds: Double) -> String {
         hours(seconds / 3600)
     }
 
-    /// A count with its noun, e.g. "1 crash" or "2 crashes".
-    static func count(_ count: Int, _ singular: String, plural: String? = nil) -> String {
-        "\(count.formatted()) \(count == 1 ? singular : plural ?? singular + "s")"
+    static func minutes(_ minutes: Int) -> String {
+        String(localized: "\(minutes) min", comment: "A length of time in minutes, e.g. 45 min.")
     }
 
     static func minutes(fromSeconds seconds: Double) -> String {
-        "\(Int((seconds / 60).rounded())) min"
+        minutes(Int((seconds / 60).rounded()))
+    }
+
+    /// A drain rate, e.g. "1.2%/h".
+    static func percentPerHour(_ value: Double) -> String {
+        String(localized: "\(decimal(value))%/h", comment: "A battery drain rate in percent per hour, e.g. 1.2%/h.")
     }
 
     static func wh(_ value: Double, digits: Int = 2) -> String {
-        String(format: "%.\(digits)f Wh", value)
+        "\(decimal(value, digits: digits)) Wh"
     }
 
     static func megabytes(_ value: Double) -> String {
-        value >= 1000 ? String(format: "%.1f GB", value / 1000) : "\(Int(value.rounded())) MB"
+        value >= 1000 ? "\(decimal(value / 1000)) GB" : "\(Int(value.rounded())) MB"
+    }
+
+    static func megabytes(_ value: Double, digits: Int) -> String {
+        "\(decimal(value, digits: digits)) MB"
+    }
+
+    static func nits(_ value: Double) -> String {
+        String(localized: "\(Int(value)) nits", comment: "Screen brightness in nits.")
+    }
+
+    static func lux(_ value: Double) -> String {
+        String(localized: "\(Int(value)) lux", comment: "Ambient light level in lux.")
+    }
+
+    static func celsius(_ value: Double) -> String {
+        "\(decimal(value)) °C"
     }
 
     static func shortDate(_ day: DayReport) -> String {
@@ -54,7 +90,8 @@ nonisolated enum Format {
     }
 
     static func dayNumber(_ day: DayReport) -> String {
-        day.dateValue?.formatted(utcStyle(day: .defaultDigits)) ?? ""
+        // From the key, since a date style adds "日" to the number in Japanese and Chinese.
+        Int(day.date.suffix(2)).map(String.init) ?? ""
     }
 
     /// The `yyyy-MM-dd` key of the day containing `date` in the device's time zone, matching `DayReport.date`.
@@ -78,7 +115,8 @@ nonisolated enum Format {
 
     static func duration(_ seconds: TimeInterval) -> String {
         let minutes = Int((seconds / 60).rounded())
-        return minutes >= 60 ? "\(minutes / 60) h \(minutes % 60) min" : "\(minutes) min"
+        guard minutes >= 60 else { return self.minutes(minutes) }
+        return String(localized: "\(minutes / 60) h \(minutes % 60) min", comment: "A length of time in hours and minutes, e.g. 2 h 5 min.")
     }
 
     static func range(of summary: ReportSummary) -> String {

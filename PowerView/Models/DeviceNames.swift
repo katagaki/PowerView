@@ -5,6 +5,11 @@ nonisolated enum DeviceNames {
         table[productType] ?? productType
     }
 
+    /// `name` as saved in a report, for display.
+    static func displayName(_ name: String) -> String {
+        name == "iPhone SE (3rd generation)" ? String(localized: "iPhone SE (3rd generation)", comment: "Device name.") : name
+    }
+
     private static let table: [String: String] = [
         "iPhone14,2": "iPhone 13 Pro", "iPhone14,3": "iPhone 13 Pro Max", "iPhone14,4": "iPhone 13 mini",
         "iPhone14,5": "iPhone 13", "iPhone14,6": "iPhone SE (3rd generation)",
@@ -26,6 +31,59 @@ nonisolated enum ProcessNames {
         guard parts.count >= 3, let last = parts.last else { return identifier }
         // Bundle IDs like com.hammerandchisel.discord end in lowercase; capitalise for display.
         return last.prefix(1).uppercased() + last.dropFirst()
+    }
+
+    /// The name to show for `identifier`. Only names from `table` are translated; for anything else
+    /// it's `stored`, the name saved in the report, if there is one.
+    static func displayName(for identifier: String, stored: String? = nil) -> String {
+        guard let name = table[identifier] else { return stored ?? name(for: identifier) }
+        return localized(name)
+    }
+
+    /// The name to show for a name saved in a report, for records that didn't keep the identifier.
+    static func displayName(stored name: String) -> String {
+        localized(name)
+    }
+
+    /// `name(for:)` stays in English because its result is saved in reports. This translates it for display.
+    private static func localized(_ name: String) -> String {
+        switch name {
+        case "Always-On Display": String(localized: "Always-On Display")
+        case "Lock Screen": String(localized: "Lock Screen")
+        case "Home Screen": String(localized: "Home Screen")
+        case "Control Center": String(localized: "Control Center")
+        case "System (unattributed CPU)": String(localized: "System (unattributed CPU)", comment: "CPU energy that isn't attributed to any app.")
+        case "GPU (unattributed)": String(localized: "GPU (unattributed)", comment: "GPU energy that isn't attributed to any app.")
+        case "Memory (unattributed)": String(localized: "Memory (unattributed)", comment: "Memory energy that isn't attributed to any app.")
+        case "SpringBoard (Home/Lock)": String(localized: "SpringBoard (Home/Lock)", comment: "The iOS process that draws the Home Screen and Lock Screen.")
+        case "Phone Call": String(localized: "Phone Call", comment: "The in-call screen.")
+        case "Widgets & Live Activities": String(localized: "Widgets & Live Activities")
+        case "sharingd (AirDrop/Continuity)": String(localized: "sharingd (AirDrop/Continuity)", comment: "System process name, then what it does.")
+        case "geod (Maps data)": String(localized: "geod (Maps data)", comment: "System process name, then what it does.")
+        case "CommCenter (cellular)": String(localized: "CommCenter (cellular)", comment: "System process name, then what it does.")
+        case "apsd (push)": String(localized: "apsd (push)", comment: "System process name, then what it does.")
+        case "nsurlsessiond (downloads)": String(localized: "nsurlsessiond (downloads)", comment: "System process name, then what it does.")
+        case "backboardd (input/display)": String(localized: "backboardd (input/display)", comment: "System process name, then what it does.")
+        case "Wi-Fi Idle": String(localized: "Wi-Fi Idle", comment: "Energy used by the Wi-Fi radio while idle.")
+        case "Cellular (standby)": String(localized: "Cellular (standby)", comment: "Energy used by the cellular radio on standby.")
+        case "Mail": String(localized: "Mail", comment: "The Mail app.")
+        case "Music": String(localized: "Music", comment: "The Music app.")
+        case "Podcasts": String(localized: "Podcasts", comment: "The Podcasts app.")
+        case "Camera": String(localized: "Camera", comment: "The Camera app.")
+        case "Photos": String(localized: "Photos", comment: "The Photos app.")
+        case "Maps": String(localized: "Maps", comment: "The Maps app.")
+        case "Messages": String(localized: "Messages", comment: "The Messages app.")
+        case "Settings": String(localized: "Settings", comment: "The Settings app.")
+        case "Reminders": String(localized: "Reminders", comment: "The Reminders app.")
+        case "Calendar": String(localized: "Calendar", comment: "The Calendar app.")
+        case "Phone": String(localized: "Phone", comment: "The Phone app.")
+        case "Health": String(localized: "Health", comment: "The Health app.")
+        case "Weather": String(localized: "Weather", comment: "The Weather app.")
+        case "News": String(localized: "News", comment: "The News app.")
+        case "Fitness": String(localized: "Fitness", comment: "The Fitness app.")
+        case "Wallet": String(localized: "Wallet", comment: "The Wallet app.")
+        default: name
+        }
     }
 
     /// Folds the many system screen identifiers into a few readable groups for the screen timeline.
@@ -58,6 +116,7 @@ nonisolated enum ProcessNames {
         "locationd": "locationd", "WiFi-Idle": "Wi-Fi Idle", "BB-Standard": "Cellular (standby)",
         "com.atebits.Tweetie2": "X", "com.hammerandchisel.discord": "Discord", "com.apple.reminders": "Reminders",
         "com.apple.mobilecal": "Calendar", "com.apple.mobilephone": "Phone", "com.apple.Health": "Health",
+        "com.apple.weather": "Weather", "com.apple.news": "News", "com.apple.Fitness": "Fitness", "com.apple.Wallet": "Wallet",
         "com.google.ios.youtube": "YouTube", "net.whatsapp.WhatsApp": "WhatsApp",
         "jp.naver.line": "LINE", "com.burbn.instagram": "Instagram", "com.anthropic.claude": "Claude",
         "com.valvesoftware.SteamLink17": "Steam Link", "jp.konami.bm2dxum": "beatmania IIDX UM",

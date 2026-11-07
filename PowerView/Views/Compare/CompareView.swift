@@ -15,6 +15,13 @@ struct CompareView: View {
         case sinceUnplugged = "Since Unplugged"
         case timeOfDay = "Time of Day"
         var id: Self { self }
+
+        var title: LocalizedStringResource {
+            switch self {
+            case .sinceUnplugged: "Since Unplugged"
+            case .timeOfDay: "Time of Day"
+            }
+        }
     }
 
     private static let firstColor = Color.blue
@@ -56,7 +63,7 @@ struct CompareView: View {
             Section {
                 if report.unplugged?.isEmpty == false {
                     Picker("Compare", selection: $period) {
-                        ForEach(ReportPeriod.allCases) { Text($0.rawValue).tag($0) }
+                        ForEach(ReportPeriod.allCases) { Text($0.title).tag($0) }
                     }
                     .pickerStyle(.segmented)
                     .listRowBackground(Color.clear)
@@ -72,7 +79,7 @@ struct CompareView: View {
 
             Section {
                 Picker("Align", selection: $alignment) {
-                    ForEach(Alignment.allCases) { Text($0.rawValue).tag($0) }
+                    ForEach(Alignment.allCases) { Text($0.title).tag($0) }
                 }
                 .pickerStyle(.segmented)
                 .listRowBackground(Color.clear)
@@ -98,7 +105,7 @@ struct CompareView: View {
         .animation(.default, value: period)
     }
 
-    private var curveFooter: String {
+    private var curveFooter: LocalizedStringResource {
         switch (alignment, period) {
         case (.sinceUnplugged, .days):
             "Each day starts from the beginning of its longest stretch on battery, so tests started at different times line up."
@@ -108,7 +115,7 @@ struct CompareView: View {
         }
     }
 
-    private func dayPicker(_ title: String, selection: Binding<Int>, color: Color) -> some View {
+    private func dayPicker(_ title: LocalizedStringResource, selection: Binding<Int>, color: Color) -> some View {
         Picker(selection: selection) {
             ForEach(reports.indices.reversed(), id: \.self) { index in
                 let day = reports[index]
@@ -186,7 +193,7 @@ struct CompareView: View {
                 AxisGridLine()
                 AxisValueLabel {
                     let hour = value.as(Double.self) ?? 0
-                    Text(alignment == .timeOfDay ? Format.clock(hour) : "\(Int(hour)) h")
+                    Text(alignment == .timeOfDay ? Format.clock(hour) : Format.hours(whole: Int(hour)))
                 }
             }
         }
@@ -201,17 +208,17 @@ struct CompareView: View {
     // MARK: - Numbers
 
     private struct Metric: Identifiable {
-        let name: String
+        let name: LocalizedStringResource
         let a: Double?
         let b: Double?
         let format: (Double) -> String
         /// Whether a lower value is the better one, for highlighting. Nil means neither is better.
         let lowerIsBetter: Bool?
-        var id: String { name }
+        var id: String { name.key }
     }
 
     private var metrics: [Metric] {
-        func rate(_ value: Double) -> String { String(format: "%.1f%%/h", value) }
+        func rate(_ value: Double) -> String { Format.percentPerHour(value) }
         func hours(_ value: Double) -> String { Format.hours(value) }
         let drainA = dayA.drain, drainB = dayB.drain
         let peakA = dayA.temperature?.bins.map(\.maximum).max(), peakB = dayB.temperature?.bins.map(\.maximum).max()
@@ -226,8 +233,8 @@ struct CompareView: View {
             Metric(name: "Screen-On Drain", a: drainA?.screenOnPerHour, b: drainB?.screenOnPerHour, format: rate, lowerIsBetter: true),
             Metric(name: "Full Charge at Pace", a: drainA?.fullChargeHours, b: drainB?.fullChargeHours, format: hours, lowerIsBetter: false),
             Metric(name: "Always-On Display", a: dayA.alwaysOnSeconds.map { $0 / 3600 }, b: dayB.alwaysOnSeconds.map { $0 / 3600 },
-                   format: { $0 > 0 ? hours($0) : "Off" }, lowerIsBetter: true),
-            Metric(name: "Energy Used", a: dayA.energyWh, b: dayB.energyWh, format: { String(format: "%.1f Wh", $0) }, lowerIsBetter: nil),
+                   format: { $0 > 0 ? hours($0) : String(localized: "Off") }, lowerIsBetter: true),
+            Metric(name: "Energy Used", a: dayA.energyWh, b: dayB.energyWh, format: { Format.wh($0, digits: 1) }, lowerIsBetter: nil),
             Metric(name: "Display-Off Energy", a: dayA.backgroundShare.map { $0 * 100 }, b: dayB.backgroundShare.map { $0 * 100 },
                    format: { "\(Int($0.rounded()))%" }, lowerIsBetter: true),
             Metric(name: "Push over Wi-Fi", a: dayA.hourly?.wifiShare.map { $0 * 100 }, b: dayB.hourly?.wifiShare.map { $0 * 100 },
@@ -236,8 +243,8 @@ struct CompareView: View {
                    b: dayB.notifications.map { Double($0.reduce(0) { $0 + $1.count }) }, format: { "\(Int($0))" }, lowerIsBetter: true),
             Metric(name: "Wakes from Sleep", a: dayA.wakes.map { Double($0.total) }, b: dayB.wakes.map { Double($0.total) },
                    format: { "\(Int($0))" }, lowerIsBetter: true),
-            Metric(name: "Peak Temperature", a: peakA, b: peakB, format: { String(format: "%.1f °C", $0) }, lowerIsBetter: true),
-            Metric(name: "Average Brightness", a: averageNits(dayA), b: averageNits(dayB), format: { "\(Int($0)) nits" }, lowerIsBetter: nil)
+            Metric(name: "Peak Temperature", a: peakA, b: peakB, format: { Format.celsius($0) }, lowerIsBetter: true),
+            Metric(name: "Average Brightness", a: averageNits(dayA), b: averageNits(dayB), format: { Format.nits($0) }, lowerIsBetter: nil)
         ].filter { $0.a != nil || $0.b != nil }
     }
 
@@ -290,11 +297,11 @@ struct CompareView: View {
 
     @ViewBuilder
     private var componentsSection: some View {
-        let bars = (dayA.components ?? []).map { Bar(id: "a-\($0.name)", category: $0.name, day: labelA, value: $0.wh) }
-            + (dayB.components ?? []).map { Bar(id: "b-\($0.name)", category: $0.name, day: labelB, value: $0.wh) }
+        let bars = (dayA.components ?? []).map { Bar(id: "a-\($0.name)", category: $0.displayName, day: labelA, value: $0.wh) }
+            + (dayB.components ?? []).map { Bar(id: "b-\($0.name)", category: $0.displayName, day: labelB, value: $0.wh) }
         if !bars.isEmpty {
             Section("Energy by Component") {
-                groupedChart(bars, unit: "Wh", categories: (dayA.components ?? dayB.components ?? []).map(\.name))
+                groupedChart(bars, unit: "Wh", categories: (dayA.components ?? dayB.components ?? []).map(\.displayName))
             }
         }
     }
@@ -303,7 +310,7 @@ struct CompareView: View {
     private var appsSection: some View {
         let appsA = dayA.apps ?? [], appsB = dayB.apps ?? []
         let ids = topAppIDs(appsA, appsB)
-        let names = Dictionary((appsA + appsB).map { ($0.bundleID, $0.name) }, uniquingKeysWith: { first, _ in first })
+        let names = Dictionary((appsA + appsB).map { ($0.bundleID, $0.displayName) }, uniquingKeysWith: { first, _ in first })
         let bars = ids.flatMap { id in
             [Bar(id: "a-\(id)", category: names[id] ?? id, day: labelA, value: Double(appsA.first { $0.bundleID == id }?.total ?? 0) / 1000),
              Bar(id: "b-\(id)", category: names[id] ?? id, day: labelB, value: Double(appsB.first { $0.bundleID == id }?.total ?? 0) / 1000)]

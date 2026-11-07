@@ -3,7 +3,7 @@ import SwiftUI
 
 /// One row of a lane chart: a title, a total, and a short chart on a shared time axis.
 struct LaneChart<Content: ChartContent>: View {
-    let title: String
+    let title: LocalizedStringResource
     var total: String?
     var height: CGFloat = 30
     var domainMax: Double = 1

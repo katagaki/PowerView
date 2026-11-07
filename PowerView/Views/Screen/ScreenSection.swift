@@ -38,7 +38,7 @@ struct ScreenSection: View {
                     }
                     if let bins = day.brightness {
                         let peak = max(100, bins.map(\.nits).max() ?? 100)
-                        LaneChart(title: "Screen Brightness", total: "avg \(Int(averageNits(bins))) nits", height: 36, domainMax: peak,
+                        LaneChart(title: "Screen Brightness", total: String(localized: "avg \(Format.nits(averageNits(bins)))", comment: "Average screen brightness."), height: 36, domainMax: peak,
                                   axis: day.axis, highlight: highlight, selection: $selection) {
                             ForEach(bins, id: \.bin) { bin in
                                 LaneBar(start: Double(bin.bin) / 4, end: Double(bin.bin + 1) / 4 - 0.02, value: bin.nits, style: Color.yellow.gradient)
@@ -47,7 +47,7 @@ struct ScreenSection: View {
                         let luxBins = bins.filter { ($0.lux ?? 0) > 0 }
                         if !luxBins.isEmpty {
                             let luxPeak = max(100, luxBins.compactMap(\.lux).max() ?? 100)
-                            LaneChart(title: "Ambient Light", total: "peak \(Int(luxPeak)) lux", height: 28, domainMax: luxPeak, showsAxis: true,
+                            LaneChart(title: "Ambient Light", total: String(localized: "peak \(Format.lux(luxPeak))", comment: "Highest ambient light level."), height: 28, domainMax: luxPeak, showsAxis: true,
                                       axis: day.axis, highlight: highlight, selection: $selection) {
                                 ForEach(luxBins, id: \.bin) { bin in
                                     LaneBar(start: Double(bin.bin) / 4, end: Double(bin.bin + 1) / 4 - 0.02, value: bin.lux ?? 0, style: Color.gray.gradient)
@@ -69,7 +69,7 @@ struct ScreenSection: View {
                     let maxMinutes = totals.first?.minutes ?? 1
                     ForEach(totals.prefix(5)) { app in
                         VStack(alignment: .leading, spacing: 4) {
-                            LabeledContent(app.name, value: Format.duration(app.minutes * 60))
+                            LabeledContent(app.displayName, value: Format.duration(app.minutes * 60))
                             GeometryReader { proxy in
                                 Capsule()
                                     .fill(colors[app.appID] ?? Color.gray.opacity(0.45))
@@ -90,7 +90,7 @@ struct ScreenSection: View {
     private var legend: some View {
         let entries = (day.screenApps?.totals ?? []).filter { colors[$0.appID] != nil }
         if !entries.isEmpty {
-            FlowLegend(items: entries.map { ($0.name, colors[$0.appID]!) } + [("Other", Color.gray.opacity(0.45))])
+            FlowLegend(items: entries.map { ($0.displayName, colors[$0.appID]!) } + [(String(localized: "Other", comment: "Everything not listed separately."), Color.gray.opacity(0.45))])
         }
     }
 
@@ -107,16 +107,16 @@ struct ScreenSection: View {
                 Text(day.axis.clock(selection))
                     .font(.headline)
                 Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 3) {
-                    row("On Screen", app.map { ProcessNames.name(for: $0.appID) } ?? "Screen off")
-                    row("Brightness", brightness.map { "\(Int($0.nits)) nits (max \(Int($0.maxNits)))" } ?? "—")
-                    row("Ambient Light", brightness?.lux.map { "\(Int($0)) lux" } ?? "—")
+                    row("On Screen", app.map { ProcessNames.displayName(for: $0.appID) } ?? String(localized: "Screen off"))
+                    row("Brightness", brightness.map { String(localized: "\(Format.nits($0.nits)) (max \(Format.nits($0.maxNits)))", comment: "Average, then highest, screen brightness.") } ?? "—")
+                    row("Ambient Light", brightness?.lux.map { Format.lux($0) } ?? "—")
                 }
             }
         }
         .inspectorCardStyle()
     }
 
-    private func row(_ name: String, _ value: String) -> some View {
+    private func row(_ name: LocalizedStringResource, _ value: String) -> some View {
         GridRow {
             Text(name)
             Text(value)

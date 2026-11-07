@@ -17,7 +17,7 @@ struct NotificationListView: View {
                     }
                 }
             } label: {
-                Text(app.name)
+                Text(app.displayName)
                 Text(app.bundleID)
                     .font(.caption2.monospaced())
             }

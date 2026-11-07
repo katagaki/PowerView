@@ -29,7 +29,8 @@ nonisolated extension DayReport {
     /// The date, plus the time it was unplugged for a stretch on battery.
     var title: String {
         guard let stretch else { return Format.shortDate(self) }
-        return "\(Format.shortDate(self)), \(axis.clock(stretch.start))"
+        return String(localized: "report.stretchTitle", defaultValue: "\(Format.shortDate(self)), \(axis.clock(stretch.start))",
+                      comment: "Title of a stretch on battery: the date, then the time it was unplugged.")
     }
 
     /// Whether `date` falls in this day, or in this stretch on battery.

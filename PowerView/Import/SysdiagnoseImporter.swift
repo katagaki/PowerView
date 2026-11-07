@@ -10,9 +10,9 @@ nonisolated struct ImportProgress: Sendable, Equatable {
 
     var title: String {
         switch stage {
-        case .extracting: "Extracting Power Log"
-        case .analyzing: "Analyzing Days"
-        case .saving: "Saving Report"
+        case .extracting: String(localized: "Extracting Power Log")
+        case .analyzing: String(localized: "Analyzing Days")
+        case .saving: String(localized: "Saving Report")
         }
     }
 }
@@ -26,8 +26,8 @@ nonisolated struct SysdiagnoseImporter {
 
         var errorDescription: String? {
             switch self {
-            case .noPowerLog: "This archive doesn't contain a power log. Make sure it's a sysdiagnose from an iPhone or iPad."
-            case .unsupportedFile: "PowerView can open sysdiagnose archives (.tar.gz) and power logs (.PLSQL)."
+            case .noPowerLog: String(localized: "This archive doesn't contain a power log. Make sure it's a sysdiagnose from an iPhone or iPad.")
+            case .unsupportedFile: String(localized: "PowerView can open sysdiagnose archives (.tar.gz) and power logs (.PLSQL).")
             }
         }
     }

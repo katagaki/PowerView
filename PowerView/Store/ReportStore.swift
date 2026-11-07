@@ -92,7 +92,7 @@ nonisolated enum ReportFiles {
     enum LoadError: LocalizedError {
         case missing
 
-        var errorDescription: String? { "This report's file couldn't be found. Try importing the sysdiagnose again." }
+        var errorDescription: String? { String(localized: "This report's file couldn't be found. Try importing the sysdiagnose again.") }
     }
 
     private static let summarySuffix = ".summary.json"
