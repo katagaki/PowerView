@@ -20,7 +20,8 @@ struct SessionRow: View {
                 Text("\(Format.time(session.start, in: timeZone))–\(Format.time(session.end, in: timeZone)) · \(Format.duration(session.duration))")
                 Spacer()
                 if let watts = session.watts {
-                    Label("\(watts) W\(session.isWireless == true ? " wireless" : "")", systemImage: session.isWireless == true ? "wave.3.up" : "cable.connector")
+                    Label(session.isWireless == true ? String(localized: "\(watts) W wireless", comment: "A wireless charger's power.") : "\(watts) W",
+                          systemImage: session.isWireless == true ? "wave.3.up" : "cable.connector")
                 }
             }
             .font(.footnote)

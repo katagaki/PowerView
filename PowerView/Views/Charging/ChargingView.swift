@@ -14,7 +14,23 @@ struct ChargingView: View {
         let day: String
         let start: Double
         let end: Double
-        let style: String
+        let charger: Charger
+    }
+
+    private enum Charger {
+        case wired, wireless, unknown
+
+        init(isWireless: Bool?) {
+            self = isWireless.map { $0 ? .wireless : .wired } ?? .unknown
+        }
+
+        var color: Color {
+            switch self {
+            case .wired: .green
+            case .wireless: .teal
+            case .unknown: .green.opacity(0.55)
+            }
+        }
     }
 
     private var segments: [Segment] {
@@ -29,7 +45,7 @@ struct ChargingView: View {
                 out.append(Segment(id: out.count, day: Format.dayKey(start, in: timeZone),
                                    start: Format.hourOfDay(start, in: timeZone),
                                    end: end == nextMidnight ? 24 : Format.hourOfDay(end, in: timeZone),
-                                   style: session.isWireless.map { $0 ? "Wireless" : "Wired" } ?? "Charger Unknown"))
+                                   charger: Charger(isWireless: session.isWireless)))
                 start = end
             }
         }
@@ -78,16 +94,16 @@ struct ChargingView: View {
         let maxWatts = sessions.compactMap(\.watts).max()
         return Section {
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                tile("Sessions", "bolt.fill", .green, "\(sessions.count)", "", "\(topUps) under 30 min")
-                tile("Plugged In", "powerplug.portrait.fill", .green, String(format: "%.1f", totalHours / Double(days)), "h/day",
-                     String(format: "%.0f h in total", totalHours))
+                tile("Sessions", "bolt.fill", .green, "\(sessions.count)", "", String(localized: "\(topUps) under 30 min", comment: "How many charging sessions were shorter than 30 minutes."))
+                tile("Plugged In", "powerplug.portrait.fill", .green, Format.decimal(totalHours / Double(days)), String(localized: "h/day", comment: "Short unit for hours per day, shown after a number in a large metric tile."),
+                     String(localized: "\(Format.hours(whole: Int(totalHours.rounded()))) in total"))
                 tile("Typical Range", "battery.75percent", .blue,
-                     "\(average(startLevels))→\(average(endLevels))", "%", "Average start and end level")
-                tile("Held at 100%", "battery.100percent", .orange, String(format: "%.1f", fullHours), "h",
-                     totalHours > 0 ? "\(Int((fullHours / totalHours * 100).rounded()))% of plugged-in time" : nil)
-                tile("Overnight", "moon.zzz.fill", .indigo, "\(overnight.count)", "", "Sessions of 3 h or more starting at night")
+                     "\(average(startLevels))→\(average(endLevels))", "%", String(localized: "Average start and end level"))
+                tile("Held at 100%", "battery.100percent", .orange, Format.decimal(fullHours), Format.hoursUnit,
+                     totalHours > 0 ? String(localized: "\(Int((fullHours / totalHours * 100).rounded()))% of plugged-in time") : nil)
+                tile("Overnight", "moon.zzz.fill", .indigo, "\(overnight.count)", "", String(localized: "Sessions of 3 h or more starting at night"))
                 tile("Fastest Charger", "bolt.badge.clock.fill", .yellow, maxWatts.map(String.init) ?? "—", maxWatts == nil ? "" : "W",
-                     maxWatts == nil ? "Not recorded" : wirelessSummary)
+                     maxWatts == nil ? String(localized: "Not recorded") : wirelessSummary)
             }
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
@@ -99,16 +115,20 @@ struct ChargingView: View {
     private var wirelessSummary: String {
         let known = sessions.compactMap(\.isWireless)
         let wireless = known.filter { $0 }.count
-        return "\(wireless) wireless · \(known.count - wireless) wired"
+        return String(localized: "\(wireless) wireless · \(known.count - wireless) wired", comment: "How many charging sessions used each kind of charger.")
     }
 
     private func average(_ values: [Int]) -> String {
         values.isEmpty ? "—" : "\(values.reduce(0, +) / values.count)"
     }
 
-    private func tile(_ title: String, _ image: String, _ tint: Color, _ value: String, _ unit: String, _ detail: String?) -> some View {
+    private func tile(_ title: LocalizedStringResource, _ image: String, _ tint: Color, _ value: String, _ unit: String, _ detail: String?) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label(title, systemImage: image)
+            Label {
+                Text(title)
+            } icon: {
+                Image(systemName: image)
+            }
                 .labelStyle(.compact)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(tint)
@@ -140,9 +160,9 @@ struct ChargingView: View {
         return Section {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 14) {
-                    legendItem("Wired", .green)
-                    legendItem("Wireless", .teal)
-                    legendItem("Charger Unknown", Self.unknownColor)
+                    legendItem("Wired", Charger.wired.color)
+                    legendItem("Wireless", Charger.wireless.color)
+                    legendItem("Charger Unknown", Charger.unknown.color)
                 }
                 .padding(.bottom, 6)
                 ForEach(report.days.reversed()) { day in
@@ -179,9 +199,8 @@ struct ChargingView: View {
     }
 
     private static let labelWidth: CGFloat = 76
-    fileprivate static let unknownColor = Color.green.opacity(0.55)
 
-    private func legendItem(_ title: String, _ color: Color) -> some View {
+    private func legendItem(_ title: LocalizedStringResource, _ color: Color) -> some View {
         HStack(spacing: 4) {
             Circle().fill(color).frame(width: 8, height: 8)
             Text(title)
@@ -191,9 +210,10 @@ struct ChargingView: View {
     }
 
     private func rowLabel(_ day: DayReport, segments: [Segment]) -> String {
-        guard !segments.isEmpty else { return "\(Format.longDate(day)): no charging" }
-        let ranges = segments.map { "\(Format.clock($0.start)) to \(Format.clock($0.end))" }.joined(separator: ", ")
-        return "\(Format.longDate(day)): charged \(ranges)"
+        guard !segments.isEmpty else { return String(localized: "\(Format.longDate(day)): no charging", comment: "VoiceOver: a day in the charging calendar.") }
+        let ranges = segments.map { String(localized: "\(Format.clock($0.start)) to \(Format.clock($0.end))", comment: "VoiceOver: a time range in the charging calendar.") }
+            .formatted(.list(type: .and))
+        return String(localized: "\(Format.longDate(day)): charged \(ranges)", comment: "VoiceOver: a day in the charging calendar, then the time ranges it charged.")
     }
 
     /// One day of the charging calendar: a faint track with a bar per charging period.
@@ -209,20 +229,12 @@ struct ChargingView: View {
                         .frame(height: 4)
                     ForEach(segments) { segment in
                         RoundedRectangle(cornerRadius: 3, style: .continuous)
-                            .fill(color(segment.style))
+                            .fill(segment.charger.color)
                             .frame(width: max(2, width * (segment.end - segment.start) / 24), height: 12)
                             .offset(x: width * segment.start / 24)
                     }
                 }
                 .frame(maxHeight: .infinity)
-            }
-        }
-
-        private func color(_ style: String) -> Color {
-            switch style {
-            case "Wired": .green
-            case "Wireless": .teal
-            default: ChargingView.unknownColor
             }
         }
     }
@@ -237,7 +249,7 @@ struct ChargingView: View {
         }
         return Section {
             Chart(buckets.indices, id: \.self) { index in
-                BarMark(x: .value("Starting Level", buckets[index]), y: .value("Sessions", counts[index]))
+                BarMark(x: .value(ChartLabel.startingLevel, buckets[index]), y: .value(ChartLabel.sessions, counts[index]))
                     .foregroundStyle(Color.green.gradient)
                     .cornerRadius(4)
                     .annotation(position: .top) {

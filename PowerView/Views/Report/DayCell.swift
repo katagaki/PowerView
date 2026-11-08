@@ -48,8 +48,10 @@ struct DayCell: View {
     }
 
     private func accessibilityLabel(used: Double) -> String {
-        let when = day.stretch.map { "Unplugged \(Format.longDate(day)) at \(day.axis.clock($0.start))" } ?? Format.longDate(day)
-        return "\(when), \(Int(used.rounded())) percent used, \(day.tier.title)"
+        let when = day.stretch.map { String(localized: "Unplugged \(Format.longDate(day)) at \(day.axis.clock($0.start))", comment: "VoiceOver: when a stretch on battery began.") }
+            ?? Format.longDate(day)
+        return String(localized: "\(when), \(Int(used.rounded())) percent used, \(day.tier.title)",
+                      comment: "VoiceOver: the date, the battery used and how much detail was kept.")
     }
 
     private var tierColor: Color {

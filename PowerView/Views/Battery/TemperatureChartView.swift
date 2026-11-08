@@ -39,7 +39,7 @@ struct TemperatureChartView: View {
                 }
             }
             Chart {
-                RuleMark(y: .value("Warm", Self.warmThreshold))
+                RuleMark(y: .value(ChartLabel.warm, Self.warmThreshold))
                     .foregroundStyle(.red.opacity(0.6))
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 3]))
                     .annotation(position: .top, alignment: .leading, spacing: 2) {
@@ -50,19 +50,21 @@ struct TemperatureChartView: View {
                 ForEach(series.bins, id: \.bin) { bin in
                     let hour = Double(bin.bin) / 4 + 0.125
                     if series.isSparse {
-                        PointMark(x: .value("Hour", hour), y: .value("Temperature", bin.average))
+                        PointMark(x: .value(ChartLabel.hour, hour), y: .value(ChartLabel.temperature, bin.average))
                             .foregroundStyle(Color.orange)
                             .symbolSize(20)
                     } else {
-                        AreaMark(x: .value("Hour", hour), yStart: .value("Low", domain.lowerBound), yEnd: .value("Temperature", bin.average))
+                        AreaMark(x: .value(ChartLabel.hour, hour), yStart: .value(ChartLabel.low, domain.lowerBound), yEnd: .value(ChartLabel.temperature, bin.average))
                             .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.3), .orange.opacity(0.02)], startPoint: .top, endPoint: .bottom))
-                        LineMark(x: .value("Hour", hour), y: .value("Temperature", bin.average))
+                            // The line below reads out the same values, without Swift Charts' untranslated "to" between range ends.
+                            .accessibilityHidden(true)
+                        LineMark(x: .value(ChartLabel.hour, hour), y: .value(ChartLabel.temperature, bin.average))
                             .foregroundStyle(Color.orange)
                             .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
                     }
                 }
                 if let selected {
-                    RuleMark(x: .value("Selected", Double(selected.bin) / 4 + 0.125))
+                    RuleMark(x: .value(ChartLabel.selected, Double(selected.bin) / 4 + 0.125))
                         .foregroundStyle(Color.secondary.opacity(0.6))
                         .annotation(position: .top, spacing: 0, overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
                             VStack(alignment: .leading, spacing: 2) {

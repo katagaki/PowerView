@@ -1,27 +1,34 @@
 import SwiftUI
 
 struct MetricTile: View {
-    let title: String
+    let title: LocalizedStringResource
     let systemImage: String
     let tint: Color
-    let value: String
+    /// Shown as a dash, without the unit, when there's no value.
+    let value: String?
     let unit: String
     let detail: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label(title, systemImage: systemImage)
+            Label {
+                Text(title)
+            } icon: {
+                Image(systemName: systemImage)
+            }
                 .labelStyle(.compact)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(tint)
             HStack(alignment: .firstTextBaseline, spacing: 2) {
-                Text(value)
+                Text(value ?? "—")
                     .font(.title.weight(.semibold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
-                Text(unit)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                if value != nil {
+                    Text(unit)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
             }
             .monospacedDigit()
             Text(detail ?? " ")

@@ -3,27 +3,27 @@ import SwiftUI
 extension StabilityEvent.Kind {
     var title: String {
         switch self {
-        case .crash: "Crash"
-        case .memoryKill: "Closed for Memory"
-        case .cpuLimit: "Heavy CPU Use"
-        case .diskWriteLimit: "Heavy Disk Writes"
-        case .memoryLimit: "Memory Limit"
-        case .hang: "Hang"
-        case .accessoryCrash: "Accessory Crash"
-        case .panic: "Unexpected Restart"
+        case .crash: String(localized: "Crash", comment: "A kind of diagnostic report: an app crashed.")
+        case .memoryKill: String(localized: "Closed for Memory", comment: "A kind of diagnostic report: iOS closed an app to free memory.")
+        case .cpuLimit: String(localized: "Heavy CPU Use", comment: "A kind of diagnostic report.")
+        case .diskWriteLimit: String(localized: "Heavy Disk Writes", comment: "A kind of diagnostic report.")
+        case .memoryLimit: String(localized: "Memory Limit", comment: "A kind of diagnostic report: an app reached its memory limit.")
+        case .hang: String(localized: "Hang", comment: "A kind of diagnostic report: an app stopped responding.")
+        case .accessoryCrash: String(localized: "Accessory Crash", comment: "A kind of diagnostic report.")
+        case .panic: String(localized: "Unexpected Restart", comment: "A kind of diagnostic report: the phone restarted by itself.")
         }
     }
 
     var pluralTitle: String {
         switch self {
-        case .crash: "Crashes"
-        case .memoryKill: "Closed for Memory"
-        case .cpuLimit: "Heavy CPU Use"
-        case .diskWriteLimit: "Heavy Disk Writes"
-        case .memoryLimit: "Memory Limits"
-        case .hang: "Hangs"
-        case .accessoryCrash: "Accessory Crashes"
-        case .panic: "Unexpected Restarts"
+        case .crash: String(localized: "Crashes", comment: "Heading for app crash reports.")
+        case .memoryKill: String(localized: "Closed for Memory", comment: "A kind of diagnostic report: iOS closed an app to free memory.")
+        case .cpuLimit: String(localized: "Heavy CPU Use", comment: "A kind of diagnostic report.")
+        case .diskWriteLimit: String(localized: "Heavy Disk Writes", comment: "A kind of diagnostic report.")
+        case .memoryLimit: String(localized: "Memory Limits", comment: "Heading for reports of apps reaching their memory limit.")
+        case .hang: String(localized: "Hangs", comment: "Heading for reports of apps that stopped responding.")
+        case .accessoryCrash: String(localized: "Accessory Crashes", comment: "Heading for accessory crash reports.")
+        case .panic: String(localized: "Unexpected Restarts", comment: "Heading for reports of the phone restarting by itself.")
         }
     }
 

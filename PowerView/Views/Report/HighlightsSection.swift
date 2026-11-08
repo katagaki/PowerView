@@ -14,7 +14,7 @@ struct HighlightsSection: View {
             Section {
                 ForEach(items) { item in
                     Label {
-                        Text((try? AttributedString(markdown: item.text)) ?? AttributedString(item.text))
+                        Text(Self.attributed(item.text))
                     } icon: {
                         Image(systemName: Self.icon(for: item.kind))
                             .foregroundStyle(Self.tint(for: item.kind))
@@ -22,10 +22,20 @@ struct HighlightsSection: View {
                 }
             } header: {
                 Text("Highlights")
-            } footer: {
-                Text("Ranked by how much battery each cost. Lines that are typical for your other days are left out unless they cost a lot.")
             }
         }
+    }
+
+    /// Bolds the `**bold**` runs. Not parsed as Markdown, which won't close a bold run after punctuation
+    /// directly followed by a letter, as in "**約12%**を", and would treat "_" in app names as markup.
+    private static func attributed(_ text: String) -> AttributedString {
+        var result = AttributedString()
+        for (index, part) in text.components(separatedBy: "**").enumerated() {
+            var run = AttributedString(part)
+            if !index.isMultiple(of: 2) { run.inlinePresentationIntent = .stronglyEmphasized }
+            result += run
+        }
+        return result
     }
 
     private static func icon(for kind: Highlight.Kind) -> String {

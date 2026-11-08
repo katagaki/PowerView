@@ -31,7 +31,7 @@ struct CaptureHelpView: View {
         }
     }
 
-    private func step(_ number: Int, _ text: String) -> some View {
+    private func step(_ number: Int, _ text: LocalizedStringResource) -> some View {
         Label {
             Text(text)
         } icon: {

@@ -46,10 +46,23 @@ struct BatteryChartView: View {
             Text("No battery samples for this day.")
                 .foregroundStyle(.secondary)
         } else {
-            chart
-                .frame(height: 240)
-                .padding(.vertical, 8)
+            VStack(alignment: .leading, spacing: 10) {
+                chart
+                    .frame(height: 240)
+                if !legendItems.isEmpty {
+                    FlowLegend(items: legendItems)
+                }
+            }
+            .padding(.vertical, 8)
         }
+    }
+
+    private var legendItems: [(String, Color)] {
+        var items: [(String, Color)] = []
+        if !chargingBands.isEmpty { items.append((String(localized: "Charging"), Color.green.opacity(0.3))) }
+        if hasScreenBar { items.append((String(localized: "Screen On"), .indigo)) }
+        if day.events?.isEmpty == false { items.append((String(localized: "Setting Change"), .secondary)) }
+        return items
     }
 
     private var chart: some View {
@@ -90,9 +103,9 @@ struct BatteryChartView: View {
     private var screenMarks: some ChartContent {
         let intervals = day.detail?.screen ?? []
         ForEach(intervals.indices, id: \.self) { index in
-            RectangleMark(xStart: .value("Start", intervals[index].start),
-                          xEnd: .value("End", max(intervals[index].end, intervals[index].start + 0.03)),
-                          yStart: .value("Bottom", 104), yEnd: .value("Top", 110))
+            RectangleMark(xStart: .value(ChartLabel.start, intervals[index].start),
+                          xEnd: .value(ChartLabel.end, max(intervals[index].end, intervals[index].start + 0.03)),
+                          yStart: .value(ChartLabel.bottom, 104), yEnd: .value(ChartLabel.top, 110))
                 .foregroundStyle(Color.indigo)
         }
     }
@@ -101,11 +114,13 @@ struct BatteryChartView: View {
     private var levelMarks: some ChartContent {
         let fill = LinearGradient(colors: [.green.opacity(0.35), .green.opacity(0.02)], startPoint: .top, endPoint: .bottom)
         ForEach(points) { point in
-            AreaMark(x: .value("Hour", point.sample.hour), yStart: .value("Floor", 0), yEnd: .value("Level", point.sample.level),
-                     series: .value("Segment", point.segment))
+            AreaMark(x: .value(ChartLabel.hour, point.sample.hour), yStart: .value(ChartLabel.floor, 0), yEnd: .value(ChartLabel.level, point.sample.level),
+                     series: .value(ChartLabel.segment, point.segment))
                 .foregroundStyle(fill)
-            LineMark(x: .value("Hour", point.sample.hour), y: .value("Level", point.sample.level),
-                     series: .value("Segment", point.segment))
+                // The line below reads out the same values, without Swift Charts' untranslated "to" between range ends.
+                .accessibilityHidden(true)
+            LineMark(x: .value(ChartLabel.hour, point.sample.hour), y: .value(ChartLabel.level, point.sample.level),
+                     series: .value(ChartLabel.segment, point.segment))
                 .foregroundStyle(Color.green)
                 .lineStyle(StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
         }
@@ -114,7 +129,7 @@ struct BatteryChartView: View {
     @ChartContentBuilder
     private var eventMarks: some ChartContent {
         ForEach(day.events ?? []) { event in
-            RuleMark(x: .value("Event", event.hour))
+            RuleMark(x: .value(ChartLabel.event, event.hour))
                 .foregroundStyle(Color.secondary)
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
         }
@@ -123,12 +138,12 @@ struct BatteryChartView: View {
     @ChartContentBuilder
     private var selectionMarks: some ChartContent {
         if let selected {
-            RuleMark(x: .value("Selected", selected.hour))
+            RuleMark(x: .value(ChartLabel.selected, selected.hour))
                 .foregroundStyle(Color.secondary.opacity(0.6))
                 .annotation(position: .top, spacing: 0, overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
                     callout(for: selected)
                 }
-            PointMark(x: .value("Hour", selected.hour), y: .value("Level", selected.level))
+            PointMark(x: .value(ChartLabel.hour, selected.hour), y: .value(ChartLabel.level, selected.level))
                 .foregroundStyle(Color.green)
                 .symbolSize(80)
         }

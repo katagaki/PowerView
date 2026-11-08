@@ -28,13 +28,13 @@ struct NetworkSection: View {
                         LaneBar(start: Double(bin.bin) / 4, end: Double(bin.bin + 1) / 4 - 0.02, value: min(bin.wifiMB, wifiCap), style: Color.blue.gradient)
                     }
                 }
-                LaneChart(title: "Cellular Data", total: String(format: "%.1f MB", cellularTotal), height: 28, domainMax: cellularCap,
+                LaneChart(title: "Cellular Data", total: Format.megabytes(cellularTotal, digits: 1), height: 28, domainMax: cellularCap,
                           axis: day.axis, highlight: highlight, selection: $selection) {
                     ForEach(detail.data, id: \.bin) { bin in
                         LaneBar(start: Double(bin.bin) / 4, end: Double(bin.bin + 1) / 4 - 0.02, value: bin.cellularMB, style: Color.green.gradient)
                     }
                 }
-                LaneChart(title: "Cellular Technology", total: detail.radio.count > 1 ? "\(detail.radio.count - 1) changes" : nil, height: 14,
+                LaneChart(title: "Cellular Technology", total: detail.radio.count > 1 ? Self.changes(detail.radio.count - 1) : nil, height: 14,
                           axis: day.axis, highlight: highlight, selection: $selection) {
                     ForEach(detail.radio.indices, id: \.self) { index in
                         let change = detail.radio[index]
@@ -65,9 +65,9 @@ struct NetworkSection: View {
                             Text(Format.megabytes(app.wifiMB))
                                 .monospacedDigit()
                         } label: {
-                            Text(app.name)
+                            Text(app.displayName)
                             if app.cellularMB >= 0.1 {
-                                Text(String(format: "%.1f MB cellular", app.cellularMB))
+                                Text("\(Format.megabytes(app.cellularMB, digits: 1)) cellular", comment: "Data an app used over the cellular network.")
                             }
                         }
                     }
@@ -75,8 +75,6 @@ struct NetworkSection: View {
             }
         } header: {
             Text("Network")
-        } footer: {
-            Text("Touch and hold a lane to inspect 15 minutes. 5G/4G changes are exact; data and signal are in 15-minute bins.")
         }
     }
 
@@ -104,18 +102,22 @@ struct NetworkSection: View {
                 Text("\(day.axis.clock(start))–\(day.axis.clock(end))")
                     .font(.headline)
                 Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 3) {
-                    row("Screen On", "\(Int(screenMinutes.rounded())) min")
-                    row("Wi-Fi Data", data.map { $0.wifiMB >= 1000 ? Format.megabytes($0.wifiMB) : String(format: "%.1f MB", $0.wifiMB) } ?? "0 MB")
-                    row("Cellular Data", String(format: "%.2f MB", data?.cellularMB ?? 0))
-                    row("Cellular", (technology(at: start + 0.125) ?? "—") + (changes > 0 ? " · \(changes) changes" : ""))
-                    row("Signal Bars", bars.map { String(format: "%.1f", $0.bars) } ?? "—")
+                    row("Screen On", Format.minutes(Int(screenMinutes.rounded())))
+                    row("Wi-Fi Data", data.map { $0.wifiMB >= 1000 ? Format.megabytes($0.wifiMB) : Format.megabytes($0.wifiMB, digits: 1) } ?? "0 MB")
+                    row("Cellular Data", Format.megabytes(data?.cellularMB ?? 0, digits: 2))
+                    row("Cellular", (technology(at: start + 0.125) ?? "—") + (changes > 0 ? " · \(Self.changes(changes))" : ""))
+                    row("Signal Bars", bars.map { Format.decimal($0.bars) } ?? "—")
                 }
             }
         }
         .inspectorCardStyle()
     }
 
-    private func row(_ name: String, _ value: String) -> some View {
+    private static func changes(_ count: Int) -> String {
+        String(localized: "\(count) changes", comment: "A number of switches between cellular technologies, such as 5G and 4G.")
+    }
+
+    private func row(_ name: LocalizedStringResource, _ value: String) -> some View {
         GridRow {
             Text(name)
             Text(value)

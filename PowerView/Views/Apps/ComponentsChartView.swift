@@ -7,11 +7,11 @@ struct ComponentsChartView: View {
 
     var body: some View {
         Chart(components) { component in
-            BarMark(x: .value("Energy", component.wh), y: .value("Component", component.name))
+            BarMark(x: .value(ChartLabel.energy, component.wh), y: .value(ChartLabel.component, component.displayName))
                 .foregroundStyle(Color.accentColor.gradient)
                 .cornerRadius(4)
                 .annotation(position: .trailing, spacing: 4) {
-                    Text("\(String(format: "%.1f", component.wh)) · ≈\(Int((component.wh / whPerPercent).rounded()))%")
+                    Text("\(Format.decimal(component.wh)) · ≈\(Int((component.wh / whPerPercent).rounded()))%")
                         .font(.caption2.weight(.semibold))
                         .monospacedDigit()
                         .foregroundStyle(.secondary)

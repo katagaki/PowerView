@@ -12,7 +12,7 @@ struct StabilityRow: View {
                 .frame(width: 24)
             VStack(alignment: .leading, spacing: 2) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text(event.process)
+                    Text(event.displayProcess)
                         .font(.body.weight(.semibold))
                         .lineLimit(1)
                     Spacer()
@@ -25,7 +25,7 @@ struct StabilityRow: View {
                 Text(event.kind.title)
                     .font(.footnote)
                     .foregroundStyle(event.kind.tint)
-                if let detail = event.detail {
+                if let detail = event.displayDetail {
                     Text(detail)
                         .font(.caption)
                         .foregroundStyle(.secondary)

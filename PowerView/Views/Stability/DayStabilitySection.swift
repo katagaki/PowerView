@@ -2,13 +2,11 @@ import SwiftUI
 
 /// A day's diagnostic events inside the day report.
 struct DayStabilitySection: View {
+    let events: [StabilityEvent]
     let report: PowerReport
-    let day: DayReport
 
     var body: some View {
-        let events = (report.stability ?? [])
-            .filter { day.contains($0.date, timeZone: report.meta.timeZone) }
-            .sorted { ($0.kind.severity, $1.date) < ($1.kind.severity, $0.date) }
+        let events = events.sorted { ($0.kind.severity, $1.date) < ($1.kind.severity, $0.date) }
         if !events.isEmpty {
             Section {
                 ForEach(events.prefix(5)) { event in
