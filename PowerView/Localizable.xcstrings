@@ -1,6 +1,29 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "#%lld of %lld components" : {
+      "comment" : "Where a component ranks by energy used. Shown in a small tile, so keep it short.",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$lld個中%1$lld位"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$lld个组件中第%1$lld"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$lld個元件中第%1$lld"
+          }
+        }
+      }
+    },
     "%@ %@" : {
       "localizations" : {
         "en" : {
@@ -1058,6 +1081,29 @@
         }
       }
     },
+    "%lld%% of all energy" : {
+      "comment" : "An app's share of the day's energy. Shown in a small tile, so keep it short.",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全エネルギーの%lld%%"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "占总能耗的%lld%%"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "占總能耗的%lld%%"
+          }
+        }
+      }
+    },
     "%lld%% of plugged-in time" : {
       "localizations" : {
         "ja" : {
@@ -1076,6 +1122,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "佔接上電源時間的%lld%%"
+          }
+        }
+      }
+    },
+    "%lld%% of pushes" : {
+      "comment" : "The share of push connections made over Wi-Fi or cellular. Shown in a small tile, so keep it short.",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プッシュの%lld%%"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "推送的%lld%%"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "推播的%lld%%"
           }
         }
       }
@@ -1479,6 +1548,29 @@
         }
       }
     },
+    "All components" : {
+      "comment" : "The total across every hardware component. Shown in a small tile, so keep it short.",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全コンポーネント"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有组件"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有元件"
+          }
+        }
+      }
+    },
     "Always-On %@" : {
       "comment" : "How long the Always-On Display was on. Shown in a small tile, so keep it short.",
       "localizations" : {
@@ -1612,6 +1704,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "永遠顯示已關閉"
+          }
+        }
+      }
+    },
+    "Always-On used %@" : {
+      "comment" : "Energy the Always-On Display used. Shown in a small tile, so keep it short.",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "常に画面オン %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全天候显示 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "永遠顯示 %@"
           }
         }
       }
@@ -1789,6 +1904,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "音訊播放"
+          }
+        }
+      }
+    },
+    "Average" : {
+      "comment" : "The average across every day or stretch on battery.",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "平均"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "平均"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "平均"
           }
         }
       }
@@ -2983,6 +3121,28 @@
         }
       }
     },
+    "Day by Day" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日ごと"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按天"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按日"
+          }
+        }
+      }
+    },
     "Delivered Quietly" : {
       "comment" : "Notifications that didn't wake the phone.",
       "localizations" : {
@@ -3091,6 +3251,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "顯示器"
+          }
+        }
+      }
+    },
+    "Display Energy" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ディスプレイのエネルギー"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示屏能耗"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示器能耗"
           }
         }
       }
@@ -4374,6 +4556,29 @@
         }
       }
     },
+    "Memory & Chip" : {
+      "comment" : "A hardware component, memory and the rest of the chip. Shown in a small pill, so keep it short.",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メモリとチップ"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内存与芯片"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記憶體與晶片"
+          }
+        }
+      }
+    },
     "Memory & Rest of Chip" : {
       "comment" : "A hardware component.",
       "localizations" : {
@@ -4758,6 +4963,73 @@
         }
       }
     },
+    "No reports on this day." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この日のレポートはありません。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这一天没有报告。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這一天沒有報告。"
+          }
+        }
+      }
+    },
+    "Not among the day's top energy users, or the power log didn't keep energy by app for this day." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この日のエネルギー使用量上位に入っていないか、電力ログにアプリごとのエネルギーが残っていません。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不在这一天的主要耗电项中，或电量日志未保留各App的能耗。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不在這一天的主要耗電項目中，或電量日誌未保留各App的能耗。"
+          }
+        }
+      }
+    },
+    "Not counted to an app" : {
+      "comment" : "CPU energy that isn't attributed to any app. Shown in a small tile, so keep it short.",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリに未計上"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未计入任何App"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未計入任何App"
+          }
+        }
+      }
+    },
     "Not recorded" : {
       "localizations" : {
         "ja" : {
@@ -4803,6 +5075,28 @@
         }
       }
     },
+    "Notifications & Network" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知とネットワーク"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知与网络"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知與網路"
+          }
+        }
+      }
+    },
     "Notifications & Wakes" : {
       "localizations" : {
         "ja" : {
@@ -4843,6 +5137,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "好"
+          }
+        }
+      }
+    },
+    "Of a full charge" : {
+      "comment" : "A share of a full battery charge. Shown in a small tile, so keep it short.",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フル充電に対して"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "占满电量"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "占滿電量"
           }
         }
       }
@@ -5020,6 +5337,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "記憶體不足時超出記憶體配額"
+          }
+        }
+      }
+    },
+    "Overall" : {
+      "comment" : "A pill that shows the whole report, not one component or app.",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全体"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "总览"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "總覽"
           }
         }
       }
@@ -5257,6 +5597,29 @@
         }
       }
     },
+    "Processor" : {
+      "comment" : "A hardware component, the CPU, GPU and Neural Engine. Shown in a small pill, so keep it short.",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロセッサ"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "处理器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "處理器"
+          }
+        }
+      }
+    },
     "Processor (CPU/GPU/NPU)" : {
       "comment" : "A hardware component.",
       "localizations" : {
@@ -5276,6 +5639,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "處理器（CPU/GPU/NPU）"
+          }
+        }
+      }
+    },
+    "Push Connections over Cellular" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "モバイル通信でのプッシュ接続"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通过蜂窝网络的推送连接"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "透過行動網路的推播連線"
+          }
+        }
+      }
+    },
+    "Push Connections over Wi-Fi" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fiでのプッシュ接続"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通过无线局域网的推送连接"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "透過Wi-Fi的推播連線"
           }
         }
       }
@@ -5387,6 +5794,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "報告在此裝置上產生，絕不會離開此裝置。"
+          }
+        }
+      }
+    },
+    "Running in Background" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックグラウンドで実行"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在后台运行"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在背景執行"
           }
         }
       }
@@ -5921,6 +6350,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "設定"
+          }
+        }
+      }
+    },
+    "Share of Energy" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エネルギーの割合"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "能耗占比"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "能耗占比"
           }
         }
       }
@@ -6467,6 +6918,28 @@
         }
       }
     },
+    "The power log didn't keep energy by component for this day." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この日の電力ログには、コンポーネントごとのエネルギーが残っていません。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这一天的电量日志未保留各组件的能耗。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這一天的電量日誌未保留各元件的能耗。"
+          }
+        }
+      }
+    },
     "The power log has no battery history. It may be from an unsupported iOS version." : {
       "localizations" : {
         "ja" : {
@@ -6639,6 +7112,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "電池供電時間"
+          }
+        }
+      }
+    },
+    "Times Opened" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "表示回数"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开次数"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打開次數"
           }
         }
       }
@@ -7009,6 +7504,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "不間斷使用時"
+          }
+        }
+      }
+    },
+    "Usually %@" : {
+      "comment" : "Average energy across the other days or stretches. Shown in a small tile, so keep it short.",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "普段は%@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通常为%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通常為%@"
           }
         }
       }

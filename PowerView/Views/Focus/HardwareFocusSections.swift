@@ -93,17 +93,17 @@ struct HardwareFocusSections: View {
         case "Display":
             MetricTile(title: "Screen On", systemImage: "iphone.gen3", tint: .indigo,
                        value: day.screenOnSeconds.map { Format.decimal($0 / 3600) }, unit: Format.hoursUnit,
-                       detail: day.aodEnergyWh.flatMap { $0 > 0 ? String(localized: "Always-On \(Format.wh($0))", comment: "Energy the Always-On Display used. Shown in a small tile, so keep it short.") : nil })
+                       detail: day.aodEnergyWh.flatMap { $0 > 0 ? String(localized: "Always-On used \(Format.wh($0))", comment: "Energy the Always-On Display used. Shown in a small tile, so keep it short.") : nil })
         case "Cellular Modem":
             let data = Self.data(day.detail.map { $0.data.reduce(0) { $0 + $1.cellularMB } })
             MetricTile(title: "Cellular Data", systemImage: "antenna.radiowaves.left.and.right", tint: .green,
                        value: data.value, unit: data.unit,
-                       detail: day.hourly?.wifiShare.map { String(localized: "\(Int(((1 - $0) * 100).rounded()))% of pushes", comment: "The share of push connections made over cellular. Shown in a small tile, so keep it short.") })
+                       detail: day.hourly?.wifiShare.map { String(localized: "\(Int(((1 - $0) * 100).rounded()))% of pushes", comment: "The share of push connections made over Wi-Fi or cellular. Shown in a small tile, so keep it short.") })
         case "Wi-Fi":
             let data = Self.data(day.detail.map { $0.data.reduce(0) { $0 + $1.wifiMB } })
             MetricTile(title: "Wi-Fi Data", systemImage: "wifi", tint: .blue,
                        value: data.value, unit: data.unit,
-                       detail: day.hourly?.wifiShare.map { String(localized: "\(Int(($0 * 100).rounded()))% of pushes", comment: "The share of push connections made over Wi-Fi. Shown in a small tile, so keep it short.") })
+                       detail: day.hourly?.wifiShare.map { String(localized: "\(Int(($0 * 100).rounded()))% of pushes", comment: "The share of push connections made over Wi-Fi or cellular. Shown in a small tile, so keep it short.") })
         case "Processor (CPU/GPU/NPU)":
             MetricTile(title: "System CPU", systemImage: "gearshape.2.fill", tint: .orange,
                        value: day.hourly.map { Format.decimal(Double($0.systemCPU.reduce(0, +)) / 1000, digits: 2) }, unit: "Wh",
