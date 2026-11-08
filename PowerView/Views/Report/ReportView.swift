@@ -3,6 +3,7 @@ import SwiftUI
 struct ReportView: View {
     let report: PowerReport
     @State private var period = ReportPeriod.days
+    @State private var focus = ReportFocus.overall
     @State private var selectedIndex: Int
     @State private var selectedStretch: Int
     @State private var destination: ReportDestination?
@@ -29,6 +30,14 @@ struct ReportView: View {
     }
 
     private var day: DayReport { reports[min(selection.wrappedValue, reports.count - 1)] }
+
+    /// The selection, kept within the reports for the period.
+    private var clampedSelection: Binding<Int> {
+        let selection = selection, count = reports.count
+        return Binding { min(selection.wrappedValue, count - 1) } set: { selection.wrappedValue = $0 }
+    }
+
+    private var focusOptions: FocusOptions { FocusOptions(reports: reports) }
     private var whPerPercent: Double { report.meta.whPerPercent }
 
     var body: some View {
@@ -39,41 +48,33 @@ struct ReportView: View {
     }
 
     private var list: some View {
-        List {
-            SummarySection(day: day, whPerPercent: whPerPercent)
-            HighlightsSection(day: day, report: report, others: comparableReports, stabilityEvents: dayStabilityEvents)
-            BatterySection(day: day)
-                .id(ScreenshotScene.battery.rawValue)
-            if let drain = day.drain {
-                DrainSection(drain: drain)
-            }
-            HourlySection(day: day)
-                .id(ScreenshotScene.hourly.rawValue)
-            ScreenSection(day: day)
-                .id(ScreenshotScene.screen.rawValue)
-            NotificationsSection(day: day)
-                .id(ScreenshotScene.notifications.rawValue)
-            AppsSection(day: day, whPerPercent: whPerPercent)
-                .id(ScreenshotScene.apps.rawValue)
-            if let components = day.components {
-                Section("Energy by Component") {
-                    ComponentsChartView(components: components, whPerPercent: whPerPercent)
+        let options = focusOptions
+        return List {
+            switch focus {
+            case .overall:
+                overallSections
+            case .hardware(let name):
+                HardwareFocusSections(name: name, day: day, reports: reports, selection: clampedSelection, whPerPercent: whPerPercent)
+            case .app(let bundleID):
+                if let app = options.app(bundleID) {
+                    AppFocusSections(app: app, day: day, reports: reports, selection: clampedSelection, report: report)
                 }
             }
-            if let detail = day.detail {
-                NetworkSection(day: day, detail: detail)
-                    .id(ScreenshotScene.network.rawValue)
-            }
-            DayStabilitySection(events: dayStabilityEvents, report: report)
-            SettingChangesSection(day: day)
         }
         .contentMargins(.top, 8, for: .scrollContent)
         .animation(.default, value: selectedIndex)
         .animation(.default, value: selectedStretch)
         .animation(.default, value: period)
+        .animation(.default, value: focus)
         .navigationTitle(day.title)
         .navigationSubtitle(DeviceNames.displayName(report.meta.deviceName))
         .navigationBarTitleDisplayMode(.inline)
+        .safeAreaBar(edge: .top) {
+            FocusPills(options: options, focus: $focus)
+        }
+        .onChange(of: period) {
+            if !focusOptions.contains(focus) { focus = .overall }
+        }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             DayStrip(days: reports, selection: selection)
                 // A fresh strip per period, so it scrolls to that period's selection.
@@ -111,6 +112,36 @@ struct ReportView: View {
             }
         }
         .sheet(isPresented: $isShowingInfo) { ReportInfoView(report: report) }
+    }
+
+    @ViewBuilder
+    private var overallSections: some View {
+        SummarySection(day: day, whPerPercent: whPerPercent)
+        HighlightsSection(day: day, report: report, others: comparableReports, stabilityEvents: dayStabilityEvents)
+        BatterySection(day: day)
+            .id(ScreenshotScene.battery.rawValue)
+        if let drain = day.drain {
+            DrainSection(drain: drain)
+        }
+        HourlySection(day: day)
+            .id(ScreenshotScene.hourly.rawValue)
+        ScreenSection(day: day)
+            .id(ScreenshotScene.screen.rawValue)
+        NotificationsSection(day: day)
+            .id(ScreenshotScene.notifications.rawValue)
+        AppsSection(day: day, whPerPercent: whPerPercent)
+            .id(ScreenshotScene.apps.rawValue)
+        if let components = day.components {
+            Section("Energy by Component") {
+                ComponentsChartView(components: components, whPerPercent: whPerPercent)
+            }
+        }
+        if let detail = day.detail {
+            NetworkSection(day: day, detail: detail)
+                .id(ScreenshotScene.network.rawValue)
+        }
+        DayStabilitySection(events: dayStabilityEvents, report: report)
+        SettingChangesSection(day: day)
     }
 
     /// What the highlights call "usual". Stretches on battery vary in length, so only those

@@ -22,7 +22,9 @@ nonisolated extension SettingEvent {
 }
 
 nonisolated extension ComponentEnergy {
-    var displayName: String {
+    var displayName: String { Self.displayName(for: name) }
+
+    static func displayName(for name: String) -> String {
         switch name {
         case "Processor (CPU/GPU/NPU)": String(localized: "Processor (CPU/GPU/NPU)", comment: "A hardware component.")
         case "Memory & Rest of Chip": String(localized: "Memory & Rest of Chip", comment: "A hardware component.")
