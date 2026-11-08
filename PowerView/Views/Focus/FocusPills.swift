@@ -15,15 +15,13 @@ struct FocusPills: View {
     }
 
     var body: some View {
-        // Drops the icons when the row doesn't fit, and only scrolls if it still doesn't.
-        ViewThatFits(in: .horizontal) {
+        // Sits at the leading edge, and scrolls when the row doesn't fit.
+        ScrollView(.horizontal) {
             row(showsIcons: true)
-            row(showsIcons: false)
-            ScrollView(.horizontal) {
-                row(showsIcons: false)
-            }
-            .scrollIndicators(.hidden)
         }
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .sensoryFeedback(.selection, trigger: focus)
     }
 
