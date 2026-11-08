@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Pills that switch the report between everything, one hardware component and one app.
-/// Components and apps are each picked from a dropdown, whose pill shows the current pick.
+/// Pills that switch the report between everything, one hardware component, one app and one system process.
+/// Each kind is picked from a dropdown, whose pill shows the current pick.
 struct FocusPills: View {
     let options: FocusOptions
     @Binding var focus: ReportFocus
@@ -11,56 +11,61 @@ struct FocusPills: View {
     }
 
     private var selectedApp: FocusApp? {
-        if case .app(let bundleID) = focus { options.apps.first { $0.bundleID == bundleID } } else { nil }
+        if case .app(let bundleID) = focus { options.app(bundleID) } else { nil }
     }
 
     var body: some View {
-        ScrollView(.horizontal) {
-            GlassEffectContainer(spacing: 8) {
-                HStack(spacing: 8) {
-                    Button {
-                        withAnimation(.snappy) { focus = .overall }
-                    } label: {
-                        pillLabel(String(localized: "Overall", comment: "A pill that shows the whole report, not one component or app."),
-                                  systemImage: "square.grid.2x2", isSelected: focus == .overall, hasMenu: false)
-                    }
-                    .buttonStyle(.plain)
-                    .glassPill(isSelected: focus == .overall)
-                    .accessibilityAddTraits(focus == .overall ? .isSelected : [])
-
-                    if !options.hardware.isEmpty {
-                        hardwareMenu
-                    }
-                    if !options.apps.isEmpty {
-                        appsMenu
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 6)
+        // Drops the icons when the row doesn't fit, and only scrolls if it still doesn't.
+        ViewThatFits(in: .horizontal) {
+            row(showsIcons: true)
+            row(showsIcons: false)
+            ScrollView(.horizontal) {
+                row(showsIcons: false)
             }
+            .scrollIndicators(.hidden)
         }
-        .scrollIndicators(.hidden)
-        // Horizontal scroll views otherwise grow to fill all vertical space.
-        .fixedSize(horizontal: false, vertical: true)
         .sensoryFeedback(.selection, trigger: focus)
     }
 
-    private var hardwareMenu: some View {
-        Menu {
-            Picker(String(localized: "Hardware", comment: "Hardware components, such as the display and the cellular modem."), selection: selection) {
-                ForEach(options.hardware, id: \.self) { name in
-                    Label {
-                        Text(ComponentEnergy.displayName(for: name))
-                        Text(Format.wh(options.hardwareEnergy[name] ?? 0, digits: 1))
-                    } icon: {
-                        Image(systemName: ComponentEnergy.systemImage(for: name))
-                    }
-                    .tag(ReportFocus.hardware(name))
+    private func row(showsIcons: Bool) -> some View {
+        GlassEffectContainer(spacing: 6) {
+            HStack(spacing: 6) {
+                Button {
+                    withAnimation(.snappy) { focus = .overall }
+                } label: {
+                    pillLabel(String(localized: "Overall", comment: "A pill that shows the whole report, not one component or app."),
+                              systemImage: showsIcons ? "square.grid.2x2" : nil, isSelected: focus == .overall, hasMenu: false)
                 }
+                .buttonStyle(.plain)
+                .glassPill(isSelected: focus == .overall)
+                .accessibilityAddTraits(focus == .overall ? .isSelected : [])
+
+                if !options.hardware.isEmpty {
+                    hardwareMenu(showsIcon: showsIcons)
+                }
+                if !options.apps.isEmpty {
+                    appMenu(options.apps, title: String(localized: "Apps", comment: "Apps someone opens, as opposed to parts of iOS. Shown in a small pill, so keep it short."),
+                            systemImage: showsIcons ? "square.grid.3x3.fill" : nil, isSystem: false)
+                }
+                if !options.systemProcesses.isEmpty {
+                    appMenu(options.systemProcesses, title: String(localized: "System", comment: "The operating system, in place of an app name."),
+                            systemImage: showsIcons ? "gearshape.2" : nil, isSystem: true)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 6)
+        }
+    }
+
+    private func hardwareMenu(showsIcon: Bool) -> some View {
+        Menu {
+            ForEach(options.hardware, id: \.self) { name in
+                menuItem(.hardware(name), title: ComponentEnergy.displayName(for: name),
+                         wh: options.hardwareEnergy[name] ?? 0, systemImage: ComponentEnergy.systemImage(for: name))
             }
         } label: {
             pillLabel(selectedHardware.map(ComponentEnergy.shortName(for:)) ?? String(localized: "Hardware", comment: "Hardware components, such as the display and the cellular modem."),
-                      systemImage: selectedHardware.map(ComponentEnergy.systemImage(for:)) ?? "cpu",
+                      systemImage: showsIcon ? selectedHardware.map(ComponentEnergy.systemImage(for:)) ?? "cpu" : nil,
                       isSelected: selectedHardware != nil, hasMenu: true)
         }
         .menuStyle(.button)
@@ -68,32 +73,37 @@ struct FocusPills: View {
         .glassPill(isSelected: selectedHardware != nil)
     }
 
-    private var appsMenu: some View {
-        Menu {
-            Picker(String(localized: "Apps & Processes"), selection: selection) {
-                ForEach(options.apps) { app in
-                    Label {
-                        Text(app.displayName)
-                        Text(Format.wh(Double(app.total) / 1000, digits: 1))
-                    } icon: {
-                        EmptyView()
-                    }
-                    .tag(ReportFocus.app(app.bundleID))
-                }
+    /// A dropdown of apps or of system processes, whose pill shows the pick when it's one of them.
+    private func appMenu(_ apps: [FocusApp], title: String, systemImage: String?, isSystem: Bool) -> some View {
+        let picked = selectedApp.flatMap { $0.isSystem == isSystem ? $0 : nil }
+        return Menu {
+            ForEach(apps) { app in
+                menuItem(.app(app.bundleID), title: app.displayName, wh: Double(app.total) / 1000, systemImage: nil)
             }
         } label: {
-            pillLabel(selectedApp?.displayName ?? String(localized: "Apps & Processes"),
-                      systemImage: selectedApp == nil ? "square.stack.3d.up" : nil,
-                      isSelected: selectedApp != nil, hasMenu: true)
+            pillLabel(picked?.displayName ?? title, systemImage: picked == nil ? systemImage : nil,
+                      isSelected: picked != nil, hasMenu: true)
         }
         .menuStyle(.button)
         .buttonStyle(.plain)
-        .glassPill(isSelected: selectedApp != nil)
+        .glassPill(isSelected: picked != nil)
     }
 
-    /// Picking from a dropdown animates the switch, like tapping a pill.
-    private var selection: Binding<ReportFocus> {
-        Binding { focus } set: { value in withAnimation(.snappy) { focus = value } }
+    /// A dropdown row with its energy across the period underneath, and a checkmark when it's the pick.
+    /// A button rather than a picker, since menus only show a picker row's first line.
+    private func menuItem(_ value: ReportFocus, title: String, wh: Double, systemImage: String?) -> some View {
+        Button {
+            withAnimation(.snappy) { focus = value }
+        } label: {
+            // Menus read the second Text as a subtitle only when it's directly in the button's label.
+            Text(title)
+            Text(Format.wh(wh, digits: 1))
+            if focus == value {
+                Image(systemName: "checkmark")
+            } else if let systemImage {
+                Image(systemName: systemImage)
+            }
+        }
     }
 
     private func pillLabel(_ title: String, systemImage: String?, isSelected: Bool, hasMenu: Bool) -> some View {
@@ -113,7 +123,7 @@ struct FocusPills: View {
         }
         .font(.subheadline.weight(.semibold))
         .foregroundStyle(isSelected ? AnyShapeStyle(.white) : AnyShapeStyle(.primary))
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .contentShape(.capsule)
     }

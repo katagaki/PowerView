@@ -1820,6 +1820,29 @@
         }
       }
     },
+    "Apps" : {
+      "comment" : "Apps someone opens, as opposed to parts of iOS. Shown in a small pill, so keep it short.",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリ"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App"
+          }
+        }
+      }
+    },
     "Apps & Processes" : {
       "localizations" : {
         "ja" : {
@@ -3855,6 +3878,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "無回應"
+          }
+        }
+      }
+    },
+    "Hardware" : {
+      "comment" : "Hardware components, such as the display and the cellular modem.",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ハードウェア"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "硬件"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "硬體"
           }
         }
       }

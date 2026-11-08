@@ -86,6 +86,29 @@ nonisolated enum ProcessNames {
         }
     }
 
+    /// Whether `identifier` is part of iOS rather than an app someone opens. Apple has far more
+    /// background services than apps, so any of its identifiers not known to be an app counts as system.
+    static func isSystem(_ identifier: String) -> Bool {
+        if identifier.hasPrefix("com.apple.") { return !appleApps.contains(identifier) }
+        // Daemons and energy buckets, such as apsd, kernel_task and WiFi-Idle, aren't bundle IDs.
+        return !identifier.contains(".")
+    }
+
+    /// Apple's own apps, which count as apps rather than system.
+    private static let appleApps: Set<String> = [
+        "com.apple.mobilesafari", "com.apple.mobilemail", "com.apple.MobileSMS", "com.apple.mobilephone", "com.apple.InCallService",
+        "com.apple.facetime", "com.apple.Music", "com.apple.podcasts", "com.apple.tv", "com.apple.iBooks", "com.apple.news",
+        "com.apple.camera", "com.apple.mobileslideshow", "com.apple.Maps", "com.apple.Preferences", "com.apple.reminders",
+        "com.apple.mobilecal", "com.apple.mobilenotes", "com.apple.MobileAddressBook", "com.apple.Health", "com.apple.Fitness",
+        "com.apple.weather", "com.apple.stocks", "com.apple.Passbook", "com.apple.Wallet", "com.apple.findmy", "com.apple.Home",
+        "com.apple.shortcuts", "com.apple.VoiceMemos", "com.apple.calculator", "com.apple.mobiletimer", "com.apple.Translate",
+        "com.apple.freeform", "com.apple.journal", "com.apple.Magnifier", "com.apple.DocumentsApp", "com.apple.compass",
+        "com.apple.measure", "com.apple.tips", "com.apple.Passwords", "com.apple.AppStore", "com.apple.MobileStore",
+        "com.apple.TestFlight", "com.apple.Bridge", "com.apple.Keynote", "com.apple.Pages", "com.apple.Numbers",
+        "com.apple.iMovie", "com.apple.mobilegarageband", "com.apple.clips", "com.apple.Image-Playground", "com.apple.Preview",
+        "com.apple.sports", "com.apple.invites", "com.apple.games", "com.apple.Sidecar", "com.apple.ScreenContinuity"
+    ]
+
     /// Folds the many system screen identifiers into a few readable groups for the screen timeline.
     static func screenGroup(for identifier: String) -> String {
         switch identifier {

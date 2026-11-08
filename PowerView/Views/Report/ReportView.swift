@@ -56,7 +56,7 @@ struct ReportView: View {
             case .hardware(let name):
                 HardwareFocusSections(name: name, day: day, reports: reports, selection: clampedSelection, whPerPercent: whPerPercent)
             case .app(let bundleID):
-                if let app = options.apps.first(where: { $0.bundleID == bundleID }) {
+                if let app = options.app(bundleID) {
                     AppFocusSections(app: app, day: day, reports: reports, selection: clampedSelection, report: report)
                 }
             }

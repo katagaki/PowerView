@@ -15,6 +15,8 @@ struct FocusApp: Identifiable, Hashable {
     /// The name saved in the report, which other records name it by.
     var name: String
     var displayName: String
+    /// Part of iOS rather than an app someone opens.
+    var isSystem: Bool
     /// mWh across every day or stretch.
     var total: Int
     var id: String { bundleID }
@@ -26,6 +28,7 @@ struct FocusOptions {
     /// Wh across every day or stretch, by component name.
     var hardwareEnergy: [String: Double]
     var apps: [FocusApp]
+    var systemProcesses: [FocusApp]
 
     init(reports: [DayReport]) {
         var energy: [String: Double] = [:]
@@ -37,19 +40,27 @@ struct FocusOptions {
                 energy[component.name, default: 0] += component.wh
             }
             for app in day.apps ?? [] {
-                apps[app.bundleID, default: FocusApp(bundleID: app.bundleID, name: app.name, displayName: app.displayName, total: 0)].total += app.total
+                apps[app.bundleID, default: FocusApp(bundleID: app.bundleID, name: app.name, displayName: app.displayName,
+                                                  isSystem: ProcessNames.isSystem(app.bundleID), total: 0)].total += app.total
             }
         }
         hardwareEnergy = energy
         hardware = order.filter { (energy[$0] ?? 0) > 0 }.sorted { (energy[$0] ?? 0) > (energy[$1] ?? 0) }
-        self.apps = apps.values.sorted { ($0.total, $1.displayName) > ($1.total, $0.displayName) }
+        let sorted = apps.values.sorted { ($0.total, $1.displayName) > ($1.total, $0.displayName) }
+        self.apps = sorted.filter { !$0.isSystem }
+        systemProcesses = sorted.filter(\.isSystem)
+    }
+
+    /// The app or system process with this bundle ID.
+    func app(_ bundleID: String) -> FocusApp? {
+        apps.first { $0.bundleID == bundleID } ?? systemProcesses.first { $0.bundleID == bundleID }
     }
 
     func contains(_ focus: ReportFocus) -> Bool {
         switch focus {
         case .overall: true
         case .hardware(let name): hardware.contains(name)
-        case .app(let bundleID): apps.contains { $0.bundleID == bundleID }
+        case .app(let bundleID): app(bundleID) != nil
         }
     }
 }
