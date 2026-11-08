@@ -50,10 +50,10 @@ nonisolated enum DetailTier: String, Codable, Sendable {
 
     var title: String {
         switch self {
-        case .detailed: "Event Detail"
-        case .hourly: "Hourly"
-        case .daily: "Daily Totals"
-        case .battery: "Battery Only"
+        case .detailed: String(localized: "Event Detail", comment: "How much detail was kept for a day: down to individual events.")
+        case .hourly: String(localized: "Hourly", comment: "How much detail was kept for a day: hour by hour.")
+        case .daily: String(localized: "Daily Totals", comment: "How much detail was kept for a day: one total for the whole day.")
+        case .battery: String(localized: "Battery Only", comment: "How much detail was kept for a day: the battery level and nothing else.")
         }
     }
 }

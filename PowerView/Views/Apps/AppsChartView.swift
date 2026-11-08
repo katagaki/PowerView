@@ -1,8 +1,8 @@
 import Charts
 import SwiftUI
 
-private let onScreenLabel = "On Screen"
-private let backgroundLabel = "Background"
+private let onScreenLabel = String(localized: "On Screen")
+private let backgroundLabel = String(localized: "Background")
 
 /// Top apps and processes, split into on-screen and background energy.
 struct AppsChartView: View {
@@ -14,17 +14,17 @@ struct AppsChartView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Chart(top) { app in
-                BarMark(x: .value("Energy", Double(app.screen) / 1000), y: .value("App", app.name))
-                    .foregroundStyle(by: .value("Kind", onScreenLabel))
-                BarMark(x: .value("Energy", Double(app.background) / 1000), y: .value("App", app.name))
-                    .foregroundStyle(by: .value("Kind", backgroundLabel))
+                BarMark(x: .value(ChartLabel.energy, Double(app.screen) / 1000), y: .value(ChartLabel.app, app.displayName))
+                    .foregroundStyle(by: .value(ChartLabel.kind, onScreenLabel))
+                BarMark(x: .value(ChartLabel.energy, Double(app.background) / 1000), y: .value(ChartLabel.app, app.displayName))
+                    .foregroundStyle(by: .value(ChartLabel.kind, backgroundLabel))
                     .annotation(position: .trailing, spacing: 4) {
-                        Text(String(format: "%.2f", Double(app.total) / 1000))
+                        Text(Format.decimal(Double(app.total) / 1000, digits: 2))
                             .font(.caption2.weight(.semibold))
                             .monospacedDigit()
                             .foregroundStyle(.secondary)
                     }
-                    .opacity(selectedName == nil || selectedName == app.name ? 1 : 0.35)
+                    .opacity(selectedName == nil || selectedName == app.displayName ? 1 : 0.35)
             }
             .chartForegroundStyleScale([onScreenLabel: Color.blue, backgroundLabel: Color.orange])
             .chartLegend(position: .top, alignment: .leading)
@@ -43,7 +43,7 @@ struct AppsChartView: View {
             .chartYSelection(value: $selectedName)
             .frame(height: CGFloat(top.count) * 30 + 50)
 
-            if let app = top.first(where: { $0.name == selectedName }) {
+            if let app = top.first(where: { $0.displayName == selectedName }) {
                 AppSummary(app: app)
                     .transition(.opacity)
             }

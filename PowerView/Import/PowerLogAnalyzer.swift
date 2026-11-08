@@ -7,7 +7,7 @@ nonisolated struct PowerLogAnalyzer {
         case noBatteryData
 
         var errorDescription: String? {
-            "The power log has no battery history. It may be from an unsupported iOS version."
+            String(localized: "The power log has no battery history. It may be from an unsupported iOS version.")
         }
     }
 

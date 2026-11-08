@@ -16,11 +16,11 @@ struct ReportMenu: View {
         Menu {
             Section("All Days") {
                 if report.days.count > 1 {
-                    item("Compare Days", detail: period == .unplugged ? "Two stretches on battery side by side" : "Two days side by side",
+                    item("Compare Days", detail: period == .unplugged ? String(localized: "Two stretches on battery side by side") : String(localized: "Two days side by side"),
                          systemImage: "square.split.2x1", destination: .compare)
                 }
                 if let sessions = report.charging {
-                    item("Charging Habits", detail: Format.count(sessions.count, "session"),
+                    item("Charging Habits", detail: String(localized: "\(sessions.count) sessions", comment: "A number of charging sessions."),
                          systemImage: "bolt", destination: .charging)
                 }
                 if let events = report.stability {
@@ -35,7 +35,7 @@ struct ReportMenu: View {
         }
     }
 
-    private func item(_ title: String, detail: String, systemImage: String, destination: ReportDestination) -> some View {
+    private func item(_ title: LocalizedStringResource, detail: String, systemImage: String, destination: ReportDestination) -> some View {
         Button {
             self.destination = destination
         } label: {
@@ -49,6 +49,11 @@ struct ReportMenu: View {
     private func stabilitySummary(_ events: [StabilityEvent]) -> String {
         let crashes = events.filter { $0.kind == .crash }.count
         let kills = events.filter { $0.kind == .memoryKill }.count
-        return events.isEmpty ? "No reports" : "\(Format.count(crashes, "crash", plural: "crashes")) · \(kills) closed for memory · \(Format.count(events.count, "report"))"
+        guard !events.isEmpty else { return String(localized: "No reports", comment: "No diagnostic reports.") }
+        return [
+            String(localized: "\(crashes) crashes", comment: "A number of app crashes."),
+            String(localized: "\(kills) closed for memory", comment: "A number of apps iOS closed to free memory."),
+            String(localized: "\(events.count) reports", comment: "A number of diagnostic reports.")
+        ].joined(separator: " · ")
     }
 }

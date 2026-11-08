@@ -29,7 +29,7 @@ struct ReportInfoView: View {
                 }
 
                 Section {
-                    LabeledContent("Device", value: meta.deviceName)
+                    LabeledContent("Device", value: DeviceNames.displayName(meta.deviceName))
                     LabeledContent("Captured", value: captured)
                     LabeledContent("Source File", value: report.sourceName)
                 } header: {

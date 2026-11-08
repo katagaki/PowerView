@@ -3,7 +3,7 @@ import SwiftUI
 
 /// One row of a lane chart: a title, a total, and a short chart on a shared time axis.
 struct LaneChart<Content: ChartContent>: View {
-    let title: String
+    let title: LocalizedStringResource
     var total: String?
     var height: CGFloat = 30
     var domainMax: Double = 1
@@ -30,8 +30,8 @@ struct LaneChart<Content: ChartContent>: View {
             Chart {
                 content()
                 if let highlight {
-                    RectangleMark(xStart: .value("Start", highlight.lowerBound), xEnd: .value("End", highlight.upperBound),
-                                  yStart: .value("Bottom", 0), yEnd: .value("Top", domainMax))
+                    RectangleMark(xStart: .value(ChartLabel.start, highlight.lowerBound), xEnd: .value(ChartLabel.end, highlight.upperBound),
+                                  yStart: .value(ChartLabel.bottom, 0), yEnd: .value(ChartLabel.top, domainMax))
                         .foregroundStyle(.primary.opacity(0.1))
                 }
             }

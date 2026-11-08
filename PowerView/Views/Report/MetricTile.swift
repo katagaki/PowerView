@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MetricTile: View {
-    let title: String
+    let title: LocalizedStringResource
     let systemImage: String
     let tint: Color
     /// Shown as a dash, without the unit, when there's no value.
@@ -11,7 +11,11 @@ struct MetricTile: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label(title, systemImage: systemImage)
+            Label {
+                Text(title)
+            } icon: {
+                Image(systemName: systemImage)
+            }
                 .labelStyle(.compact)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(tint)

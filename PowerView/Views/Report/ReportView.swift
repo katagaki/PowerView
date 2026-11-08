@@ -72,7 +72,7 @@ struct ReportView: View {
         .animation(.default, value: selectedStretch)
         .animation(.default, value: period)
         .navigationTitle(day.title)
-        .navigationSubtitle(report.meta.deviceName)
+        .navigationSubtitle(DeviceNames.displayName(report.meta.deviceName))
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             DayStrip(days: reports, selection: selection)
@@ -89,7 +89,12 @@ struct ReportView: View {
                     Menu {
                         Picker("Show", selection: $period) {
                             ForEach(ReportPeriod.allCases) { period in
-                                Label(period.rawValue, systemImage: period.systemImage).tag(period)
+                                Label {
+                                    Text(period.title)
+                                } icon: {
+                                    Image(systemName: period.systemImage)
+                                }
+                                .tag(period)
                             }
                         }
                     } label: {

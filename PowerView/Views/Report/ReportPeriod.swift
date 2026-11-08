@@ -7,6 +7,13 @@ enum ReportPeriod: String, CaseIterable, Identifiable {
 
     var id: Self { self }
 
+    var title: LocalizedStringResource {
+        switch self {
+        case .days: "Calendar Days"
+        case .unplugged: "Since Unplugged"
+        }
+    }
+
     var systemImage: String {
         switch self {
         case .days: "calendar"

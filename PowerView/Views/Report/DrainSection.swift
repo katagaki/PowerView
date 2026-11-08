@@ -22,7 +22,7 @@ struct DrainSection: View {
             }
             if let hours = drain.fullChargeStandbyHours {
                 LabeledContent {
-                    Text(hours >= 48 ? String(format: "%.1f days", hours / 24) : Self.duration(hours))
+                    Text(hours >= 48 ? String(localized: "\(Format.decimal(hours / 24)) days", comment: "A length of time in days, e.g. 2.5 days.") : Self.duration(hours))
                 } label: {
                     Text("Standby Only")
                     Text("Screen off the whole time")
@@ -35,6 +35,6 @@ struct DrainSection: View {
     }
 
     static func duration(_ hours: Double) -> String {
-        hours >= 10 ? "\(Int(hours.rounded())) h" : Format.hours(hours)
+        hours >= 10 ? Format.hours(whole: Int(hours.rounded())) : Format.hours(hours)
     }
 }

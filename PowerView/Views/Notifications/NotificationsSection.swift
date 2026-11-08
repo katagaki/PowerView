@@ -1,8 +1,8 @@
 import Charts
 import SwiftUI
 
-private let wokeLabel = "Woke the Phone"
-private let quietLabel = "Delivered Quietly"
+private let wokeLabel = String(localized: "Woke the Phone", comment: "Notifications that woke the phone.")
+private let quietLabel = String(localized: "Delivered Quietly", comment: "Notifications that didn't wake the phone.")
 
 /// Which apps sent notifications, and how often the phone woke from sleep.
 struct NotificationsSection: View {
@@ -13,16 +13,16 @@ struct NotificationsSection: View {
             Section {
                 if let apps = day.notifications {
                     let top = Array(apps.prefix(6))
-                    Text("\(Format.count(apps.reduce(0) { $0 + $1.count }, "notification")) · \(apps.reduce(0) { $0 + $1.wokePhone }) woke the phone")
+                    Text(verbatim: summary(apps))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .padding(.top, 4)
                         .listRowSeparator(.hidden)
                     Chart(top) { app in
-                        BarMark(x: .value("Notifications", app.wokePhone), y: .value("App", app.name))
-                            .foregroundStyle(by: .value("Kind", wokeLabel))
-                        BarMark(x: .value("Notifications", max(0, app.count - app.wokePhone)), y: .value("App", app.name))
-                            .foregroundStyle(by: .value("Kind", quietLabel))
+                        BarMark(x: .value(ChartLabel.notifications, app.wokePhone), y: .value(ChartLabel.app, app.displayName))
+                            .foregroundStyle(by: .value(ChartLabel.kind, wokeLabel))
+                        BarMark(x: .value(ChartLabel.notifications, max(0, app.count - app.wokePhone)), y: .value(ChartLabel.app, app.displayName))
+                            .foregroundStyle(by: .value(ChartLabel.kind, quietLabel))
                             .annotation(position: .trailing, spacing: 4) {
                                 Text("\(app.count)")
                                     .font(.caption2.weight(.semibold))
@@ -46,7 +46,7 @@ struct NotificationsSection: View {
                 if let wakes = day.wakes {
                     DisclosureGroup {
                         ForEach(wakes.reasons) { reason in
-                            LabeledContent(reason.name) {
+                            LabeledContent(reason.displayName) {
                                 Text("\(reason.count)")
                                     .monospacedDigit()
                             }
@@ -62,5 +62,10 @@ struct NotificationsSection: View {
                 Text("Notifications & Wakes")
             }
         }
+    }
+
+    private func summary(_ apps: [NotificationApp]) -> String {
+        let total = apps.reduce(0) { $0 + $1.count }, woke = apps.reduce(0) { $0 + $1.wokePhone }
+        return "\(String(localized: "\(total) notifications", comment: "A number of notifications.")) · \(String(localized: "\(woke) woke the phone", comment: "How many notifications woke the phone."))"
     }
 }

@@ -7,13 +7,15 @@ struct HourlyLanesView: View {
     @State private var selection: Double?
 
     private struct Lane: Identifiable {
-        let name: String
+        let name: LocalizedStringResource
         let values: [Double]
         let max: Double
         let color: Color
         let format: (Double) -> String
         let total: String
-        var id: String { name }
+        /// Whether the connection lane goes right above this one.
+        var followsConnection = false
+        var id: String { name.key }
     }
 
     private var lanes: [Lane] {
@@ -29,7 +31,7 @@ struct HourlyLanesView: View {
         }
         let aodTotal = Double(hourly.aod.reduce(0, +))
         lanes.append(Lane(name: "Always-On Display", values: seconds(hourly.aod), max: 3600, color: .purple,
-                          format: Format.minutes(fromSeconds:), total: aodTotal > 0 ? Format.hours(fromSeconds: aodTotal) : "Off"))
+                          format: Format.minutes(fromSeconds:), total: aodTotal > 0 ? Format.hours(fromSeconds: aodTotal) : String(localized: "Off")))
         lanes.append(Lane(name: "Audio Playing", values: seconds(hourly.audio), max: 3600, color: .pink,
                           format: Format.minutes(fromSeconds:), total: Format.hours(fromSeconds: Double(hourly.audio.reduce(0, +)))))
         if let notifications = day.notificationsByHour {
@@ -40,7 +42,7 @@ struct HourlyLanesView: View {
             lanes.append(Lane(name: "Wakes from Sleep", values: wakes.byHour.map(Double.init), max: Double(max(10, wakes.byHour.max() ?? 0)), color: .mint,
                               format: { "\(Int($0))" }, total: "\(wakes.total)"))
         }
-        lanes.append(Lane(name: "Cellular Modem", values: seconds(hourly.modem), max: 400, color: .green, format: mWh, total: whTotal(hourly.modem)))
+        lanes.append(Lane(name: "Cellular Modem", values: seconds(hourly.modem), max: 400, color: .green, format: mWh, total: whTotal(hourly.modem), followsConnection: true))
         lanes.append(Lane(name: "Wi-Fi Radio", values: seconds(hourly.wifi), max: 400, color: .blue, format: mWh, total: whTotal(hourly.wifi)))
         lanes.append(Lane(name: "System CPU", values: seconds(hourly.systemCPU), max: 250, color: .orange, format: mWh, total: whTotal(hourly.systemCPU)))
         lanes.append(Lane(name: "Total Energy", values: seconds(hourly.total), max: 2500, color: .gray, format: mWh, total: whTotal(hourly.total)))
@@ -61,7 +63,7 @@ struct HourlyLanesView: View {
         let lanes = lanes
         VStack(alignment: .leading, spacing: 14) {
             ForEach(Array(lanes.enumerated()), id: \.element.id) { index, lane in
-                if lane.name == "Cellular Modem" && day.hasKeepAlive {
+                if lane.followsConnection && day.hasKeepAlive {
                     connectionLane
                 }
                 LaneChart(title: lane.name, total: lane.total, domainMax: lane.max,
@@ -84,7 +86,7 @@ struct HourlyLanesView: View {
 
     private var connectionLane: some View {
         let share = hourly.wifiShare
-        return LaneChart(title: "Connection (Wi-Fi vs Cellular)", total: share.map { "\(Int(($0 * 100).rounded()))% Wi-Fi" } ?? "—",
+        return LaneChart(title: "Connection (Wi-Fi vs Cellular)", total: share.map { String(localized: "\(Int(($0 * 100).rounded()))% Wi-Fi", comment: "The share of push connections made over Wi-Fi.") } ?? "—",
                          domainMax: 1, axis: day.axis, highlight: highlight, selection: $selection) {
             pluggedShading(max: 1)
             ForEach(0..<hours, id: \.self) { hour in
@@ -92,8 +94,8 @@ struct HourlyLanesView: View {
                 if cellular + wifi > 0 {
                     let cellularShare = cellular / (cellular + wifi)
                     LaneBar(start: Double(hour) + 0.08, end: Double(hour) + 0.92, value: cellularShare, style: Color.green)
-                    RectangleMark(xStart: .value("Start", Double(hour) + 0.08), xEnd: .value("End", Double(hour) + 0.92),
-                                  yStart: .value("Bottom", cellularShare), yEnd: .value("Top", 1))
+                    RectangleMark(xStart: .value(ChartLabel.start, Double(hour) + 0.08), xEnd: .value(ChartLabel.end, Double(hour) + 0.92),
+                                  yStart: .value(ChartLabel.bottom, cellularShare), yEnd: .value(ChartLabel.top, 1))
                         .foregroundStyle(Color.blue)
                 }
             }
@@ -143,7 +145,7 @@ struct HourlyLanesView: View {
             .inspectorCardStyle()
         }
 
-        private func row(_ name: String, _ value: String, _ color: Color) -> some View {
+        private func row(_ name: LocalizedStringResource, _ value: String, _ color: Color) -> some View {
             GridRow {
                 HStack(spacing: 6) {
                     Circle().fill(color).frame(width: 7, height: 7)
