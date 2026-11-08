@@ -23,6 +23,8 @@ struct FocusApp: Identifiable, Hashable {
 /// The hardware components and apps worth a pill, for the days or stretches in view.
 struct FocusOptions {
     var hardware: [String]
+    /// Wh across every day or stretch, by component name.
+    var hardwareEnergy: [String: Double]
     var apps: [FocusApp]
 
     init(reports: [DayReport]) {
@@ -38,6 +40,7 @@ struct FocusOptions {
                 apps[app.bundleID, default: FocusApp(bundleID: app.bundleID, name: app.name, displayName: app.displayName, total: 0)].total += app.total
             }
         }
+        hardwareEnergy = energy
         hardware = order.filter { (energy[$0] ?? 0) > 0 }.sorted { (energy[$0] ?? 0) > (energy[$1] ?? 0) }
         self.apps = apps.values.sorted { ($0.total, $1.displayName) > ($1.total, $0.displayName) }
     }
